@@ -7412,6 +7412,12 @@ proc selectline {l isnew {desired_loc {}} {switch_to_patch 0}} {
     $sha1entry insert 0 $id
     if {$autoselect} {
         $sha1entry selection range 0 $autosellen
+        # the real goal is to copy to clipboard. selection alone copies on X11,
+        # but not on Windows, and possibly elsewhere too. do ensure copy.
+        if {$::tcl_platform(platform) eq {windows}} {
+            clipboard clear
+            clipboard append [string range $id 0 [expr $autosellen - 1]]
+        }
     }
     rhighlight_sel $id
 
