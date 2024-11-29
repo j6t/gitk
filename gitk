@@ -7344,7 +7344,7 @@ proc selectline {l isnew {desired_loc {}} {switch_to_patch 0}} {
     global mergemax numcommits pending_select
     global cmitmode showneartags allcommits
     global targetrow targetid lastscrollrows
-    global autoselect autosellen jump_to_here
+    global autoselect autocopy autosellen jump_to_here
     global vinlinediff
 
     unset -nocomplain pending_select
@@ -7412,6 +7412,10 @@ proc selectline {l isnew {desired_loc {}} {switch_to_patch 0}} {
     $sha1entry insert 0 $id
     if {$autoselect} {
         $sha1entry selection range 0 $autosellen
+    }
+    if {$autocopy} {
+        clipboard clear
+        clipboard append [string range $id 0 [expr $autosellen - 1]]
     }
     rhighlight_sel $id
 
@@ -11576,7 +11580,7 @@ proc create_prefs_page {w} {
 
 proc prefspage_general {notebook} {
     global NS maxwidth maxgraphpct showneartags showlocalchanges
-    global tabstop limitdiffs autoselect autosellen extdifftool perfile_attrs
+    global tabstop limitdiffs autoselect autocopy autosellen extdifftool perfile_attrs
     global hideremotes want_ttk have_ttk maxrefs web_browser
 
     set page [create_prefs_page $notebook.general]
@@ -11598,6 +11602,9 @@ proc prefspage_general {notebook} {
         -variable autoselect
     spinbox $page.autosellen -from 1 -to 40 -width 4 -textvariable autosellen
     grid x $page.autoselect $page.autosellen -sticky w
+    ${NS}::checkbutton $page.autocopy -text [mc "Auto-copy SHA1 (primary)"] \
+        -variable autocopy
+    grid x $page.autocopy -sticky w
     ${NS}::checkbutton $page.hideremotes -text [mc "Hide remote refs"] \
         -variable hideremotes
     grid x $page.hideremotes -sticky w
@@ -11724,7 +11731,7 @@ proc doprefs {} {
     global maxwidth maxgraphpct use_ttk NS
     global oldprefs prefstop showneartags showlocalchanges
     global uicolor bgcolor fgcolor ctext diffcolors selectbgcolor markbgcolor
-    global tabstop limitdiffs autoselect autosellen extdifftool perfile_attrs
+    global tabstop limitdiffs autoselect autocopy autosellen extdifftool perfile_attrs
     global hideremotes want_ttk have_ttk
 
     set top .gitkprefs
@@ -12401,6 +12408,7 @@ set showlocalchanges 1
 set limitdiffs 1
 set datetimeformat "%Y-%m-%d %H:%M:%S"
 set autoselect 1
+set autocopy 0
 set autosellen 40
 set perfile_attrs 0
 set want_ttk 1
@@ -12497,7 +12505,7 @@ config_check_tmp_exists 50
 
 set config_variables {
     mainfont textfont uifont tabstop findmergefiles maxgraphpct maxwidth
-    cmitmode wrapcomment autoselect autosellen showneartags maxrefs visiblerefs
+    cmitmode wrapcomment autoselect autocopy autosellen showneartags maxrefs visiblerefs
     hideremotes showlocalchanges datetimeformat limitdiffs uicolor want_ttk
     bgcolor fgcolor uifgcolor uifgdisabledcolor colors diffcolors mergecolors
     markbgcolor diffcontext selectbgcolor foundbgcolor currentsearchhitbgcolor
