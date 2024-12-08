@@ -11598,7 +11598,7 @@ proc prefspage_general {notebook} {
     ${NS}::checkbutton $page.showlocal -text [mc "Show local changes"] \
         -variable showlocalchanges
     grid x $page.showlocal -sticky w
-    ${NS}::checkbutton $page.autoselect -text [mc "Auto-select SHA1 (length)"] \
+    ${NS}::checkbutton $page.autoselect -text [mc "Auto-select SHA1 (X11)  Length"] \
         -variable autoselect
     spinbox $page.autosellen -from 1 -to 40 -width 4 -textvariable autosellen
     grid x $page.autoselect $page.autosellen -sticky w
