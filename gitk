@@ -8346,6 +8346,7 @@ proc parseblobdiffline {ids line} {
         if {$type eq "--cc"} {
             # start of a new file in a merge diff
             set fname [string range $line 10 end]
+            set fname [encoding convertfrom utf-8 $fname]
             if {[lsearch -exact $treediffs($ids) $fname] < 0} {
                 lappend treediffs($ids) $fname
                 add_flist [list $fname]
@@ -8379,6 +8380,7 @@ proc parseblobdiffline {ids line} {
 
     } elseif {![string compare -length 16 "* Unmerged path " $line]} {
         set fname [encoding convertfrom utf-8 [string range $line 16 end]]
+        set line [encoding convertfrom utf-8 $line]
         $ctext insert end "\n"
         set curdiffstart [$ctext index "end - 1c"]
         lappend ctext_file_names $fname
@@ -12519,6 +12521,7 @@ catch {
 if {$gitencoding == ""} {
     set gitencoding "utf-8"
 }
+encoding system utf-8
 set tclencoding [tcl_encoding $gitencoding]
 if {$tclencoding == {}} {
     puts stderr "Warning: encoding $gitencoding is not supported by Tcl/Tk"
