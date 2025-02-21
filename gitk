@@ -12746,7 +12746,10 @@ if {$selecthead eq "HEAD"} {
 if {$i >= [llength $argv] && $revtreeargs ne {}} {
     # no -- on command line, but some arguments (other than --argscmd)
     if {[catch {
-        set f [eval exec git rev-parse --no-revs --no-flags $revtreeargs]
+        set fd [open [concat | git rev-parse --no-revs --no-flags $revtreeargs] r]
+        fconfigure $fd -encoding utf-8
+        set f [read -nonewline $fd]
+        close $fd
         set cmdline_files [split $f "\n"]
         set n [llength $cmdline_files]
         set revtreeargs [lrange $revtreeargs 0 end-$n]
