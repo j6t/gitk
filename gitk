@@ -552,9 +552,9 @@ proc start_rev_list {view} {
     if {$showlocalchanges && $viewmainheadid($view) ne {}} {
         interestedin $viewmainheadid($view) dodiffindex
     }
-    fconfigure $fd -blocking 0 -translation lf -eofchar {}
+    chan configure $fd -blocking 0 -translation lf -eofchar {}
     if {$tclencoding != {}} {
-        fconfigure $fd -encoding $tclencoding
+        chan configure $fd -encoding $tclencoding
     }
     filerun $fd [list getcommitlines $fd $i $view 0]
     nowbusy $view [mc "Reading"]
@@ -703,9 +703,9 @@ proc updatecommits {} {
     }
     set i [reg_instance $fd]
     lappend viewinstances($view) $i
-    fconfigure $fd -blocking 0 -translation lf -eofchar {}
+    chan configure $fd -blocking 0 -translation lf -eofchar {}
     if {$tclencoding != {}} {
-        fconfigure $fd -encoding $tclencoding
+        chan configure $fd -encoding $tclencoding
     }
     filerun $fd [list getcommitlines $fd $i $view 1]
     incr viewactive($view)
@@ -1570,7 +1570,7 @@ proc getcommitlines {fd inst view updating}  {
             set viewinstances($view) [lreplace $viewinstances($view) $i $i]
         }
         # set it blocking so we wait for the process to terminate
-        fconfigure $fd -blocking 1
+        chan configure $fd -blocking 1
         if {[catch {close $fd} err]} {
             set fv {}
             if {$view != $curview} {
@@ -1784,9 +1784,9 @@ proc do_readcommit {id} {
     # Invoke git-log to handle automatic encoding conversion
     set fd [open [concat | git log --no-color --pretty=raw -1 $id] r]
     # Read the results using i18n.logoutputencoding
-    fconfigure $fd -translation lf -eofchar {}
+    chan configure $fd -translation lf -eofchar {}
     if {$tclencoding != {}} {
-        fconfigure $fd -encoding $tclencoding
+        chan configure $fd -encoding $tclencoding
     }
     set contents [read $fd]
     close $fd
@@ -1921,7 +1921,7 @@ proc readrefs {} {
     }
     set refd [open [list | git show-ref -d] r]
     if {$tclencoding != {}} {
-        fconfigure $refd -encoding $tclencoding
+        chan configure $refd -encoding $tclencoding
     }
     while {[gets $refd line] >= 0} {
         if {[string index $line $hashlength] ne " "} continue
@@ -2675,20 +2675,12 @@ proc makewindow {} {
     pack .ctop -fill both -expand 1
     bindall <1> {selcanvline %W %x %y}
     #bindall <B1-Motion> {selcanvline %W %x %y}
-    if {[tk windowingsystem] == "win32"} {
-        bind . <MouseWheel> { windows_mousewheel_redirector %W %X %Y %D }
-        bind $ctext <MouseWheel> { windows_mousewheel_redirector %W %X %Y %D ; break }
-    } else {
-        bindall <ButtonRelease-4> "allcanvs yview scroll -5 units"
-        bindall <ButtonRelease-5> "allcanvs yview scroll 5 units"
-        bind $ctext <Button> {
-            if {"%b" eq 6} {
-                $ctext xview scroll -5 units
-            } elseif {"%b" eq 7} {
-                $ctext xview scroll 5 units
-            }
+    switch -- [tk windowingsystem] {
+        "win32" {
+            bind .      <MouseWheel> { windows_mousewheel_redirector %W %X %Y %D }
+            bind $ctext <MouseWheel> { windows_mousewheel_redirector %W %X %Y %D }
         }
-        if {[tk windowingsystem] eq "aqua"} {
+        "aqua" {
             bindall <MouseWheel> {
                 set delta [expr {- (%D)}]
                 allcanvs yview scroll $delta units
@@ -2696,6 +2688,29 @@ proc makewindow {} {
             bindall <Shift-MouseWheel> {
                 set delta [expr {- (%D)}]
                 $canv xview scroll $delta units
+            }
+        }
+        "x11" {
+            global have_tk90
+            if {$have_tk90} {
+                bindall <MouseWheel> {
+                    set delta [expr {((%D) >= 0) ? -5 : 5}]
+                    allcanvs yview scroll $delta units
+                }
+                bindall <Shift-MouseWheel> {
+                    set delta [expr {((%D) >= 0) ? -5 : 5}]
+                    $canv xview scroll $delta units
+                }
+            } else {
+                bindall <ButtonRelease-4> "allcanvs yview scroll -5 units"
+                bindall <ButtonRelease-5> "allcanvs yview scroll  5 units"
+                bind $ctext <Button> {
+                    if {"%b" eq 6} {
+                        $ctext xview scroll -5 units
+                    } elseif {"%b" eq 7} {
+                        $ctext xview scroll  5 units
+                    }
+                }
             }
         }
     }
@@ -3859,7 +3874,7 @@ proc external_diff {} {
             file delete -force $diffdir
             error_popup "$extdifftool: [mc "command failed:"] $err"
         } else {
-            fconfigure $fl -blocking 0
+            chan configure $fl -blocking 0
             filerun $fl [list delete_at_eof $fl $diffdir]
         }
     }
@@ -4088,7 +4103,7 @@ proc show_line_source {} {
         return
     }
     nowbusy blaming [mc "Searching"]
-    fconfigure $f -blocking 0
+    chan configure $f -blocking 0
     set i [reg_instance $f]
     set blamestuff($i) {}
     set blameinst $i
@@ -4118,7 +4133,7 @@ proc read_line_source {fd inst} {
     unset commfd($inst)
     unset blameinst
     notbusy blaming
-    fconfigure $fd -blocking 1
+    chan configure $fd -blocking 1
     if {[catch {close $fd} err]} {
         error_popup [mc "Error running git blame: %s" $err]
         return 0
@@ -5010,7 +5025,7 @@ proc do_file_hl {serial} {
     }
     set cmd [concat | git diff-tree -r -s --stdin $gdtargs]
     set filehighlight [open $cmd r+]
-    fconfigure $filehighlight -blocking 0
+    chan configure $filehighlight -blocking 0
     filerun $filehighlight readfhighlight
     set fhl_list {}
     drawvisible
@@ -5442,7 +5457,7 @@ proc get_viewmainhead {view} {
                            -- $vfilelimit($view)] r]
         set j [reg_instance $rfd]
         lappend viewinstances($view) $j
-        fconfigure $rfd -blocking 0
+        chan configure $rfd -blocking 0
         filerun $rfd [list getviewhead $rfd $j $view]
         set viewmainheadid($curview) {}
     }
@@ -5513,7 +5528,7 @@ proc dodiffindex {} {
         set cmd [concat $cmd -- $vfilelimit($curview)]
     }
     set fd [open $cmd r]
-    fconfigure $fd -blocking 0
+    chan configure $fd -blocking 0
     set i [reg_instance $fd]
     filerun $fd [list readdiffindex $fd $lserial $i]
 }
@@ -5542,7 +5557,7 @@ proc readdiffindex {fd serial inst} {
         set cmd [concat $cmd -- $vfilelimit($curview)]
     }
     set fd [open $cmd r]
-    fconfigure $fd -blocking 0
+    chan configure $fd -blocking 0
     set i [reg_instance $fd]
     filerun $fd [list readdifffiles $fd $serial $i]
 
@@ -7861,7 +7876,7 @@ proc gettree {id} {
             set treepending $id
             set treefilelist($id) {}
             set treeidlist($id) {}
-            fconfigure $gtf -blocking 0 -encoding binary
+            chan configure $gtf -blocking 0 -translation binary
             filerun $gtf [list gettreeline $gtf $id]
         }
     } else {
@@ -7930,7 +7945,7 @@ proc showfile {f} {
             return
         }
     }
-    fconfigure $bf -blocking 0 -encoding [get_path_encoding $f]
+    chan configure $bf -blocking 0 -encoding [get_path_encoding $f]
     filerun $bf [list getblobline $bf $diffids]
     $ctext config -state normal
     clear_ctext $commentend
@@ -8124,7 +8139,7 @@ proc gettreediffs {ids} {
 
     set treepending $ids
     set treediff {}
-    fconfigure $gdtf -blocking 0 -encoding binary
+    chan configure $gdtf -blocking 0 -translation binary
     filerun $gdtf [list gettreediffline $gdtf $ids]
 }
 
@@ -8244,7 +8259,7 @@ proc getblobdiffs {ids} {
         error_popup [mc "Error getting diffs: %s" $err]
         return
     }
-    fconfigure $bdf -blocking 0 -encoding binary -eofchar {}
+    chan configure $bdf -blocking 0 -translation binary -eofchar {}
     set blobdifffd($ids) $bdf
     initblobdiffvars
     filerun $bdf [list getblobdiffline $bdf $diffids]
@@ -10446,7 +10461,7 @@ proc getallcommits {} {
             set cmd [concat $cmd --stdin "<<[join $ids "\\n"]"]
         }
         set fd [open $cmd r]
-        fconfigure $fd -blocking 0
+        chan configure $fd -blocking 0
         incr allcommits
         nowbusy allcommits
         filerun $fd [list getallclines $fd]
@@ -10554,7 +10569,7 @@ proc getallclines {fd} {
     }
     set cacheok 1
     if {[catch {
-        fconfigure $fd -blocking 1
+        chan configure $fd -blocking 1
         close $fd
     } err]} {
         # got an error reading the list of commits
@@ -12508,6 +12523,17 @@ proc get_path_encoding {path} {
     return $tcl_enc
 }
 
+# Tk9: Expand "~" and "~user_name" to canonical path name
+# Tk8: Just pass original path name to use built-in tilde expander
+proc tilde_expand {path} {
+    global have_tk90
+    if {$have_tk90} {
+	return [file tildeexpand $path]
+    } else {
+	return $path
+    }
+}
+
 ## For msgcat loading, first locate the installation location.
 if { [info exists ::env(GITK_MSGSDIR)] } {
     ## Msgsdir was manually set in the environment.
@@ -12527,11 +12553,14 @@ namespace import ::msgcat::mc
 ::msgcat::mcload $gitk_msgsdir
 
 # First check that Tcl/Tk is recent enough
-if {[catch {package require Tk 8.4} err]} {
+if {[catch {package require Tk 8.4-} err]} {
     show_error {} . [mc "Sorry, gitk cannot run with this version of Tcl/Tk.\n\
                          Gitk requires at least Tcl/Tk 8.4."]
     exit 1
 }
+set have_tk85 [expr {[package vcompare $tk_version "8.5"] >= 0}]
+set have_tk86 [expr {[package vcompare $tk_version "8.6"] >= 0}]
+set have_tk90 [expr {[package vcompare $tk_version "9.0"] >= 0}]
 
 # on OSX bring the current Wish process window to front
 if {[tk windowingsystem] eq "aqua"} {
@@ -12710,14 +12739,14 @@ catch {
         set config_file_tmp [file join $env(XDG_CONFIG_HOME) git gitk-tmp]
     } else {
         # default XDG_CONFIG_HOME
-        set config_file "~/.config/git/gitk"
-        set config_file_tmp "~/.config/git/gitk-tmp"
+        set config_file     [tilde_expand "~/.config/git/gitk"]
+        set config_file_tmp [tilde_expand "~/.config/git/gitk-tmp"]
     }
     if {![file exists $config_file]} {
         # for backward compatibility use the old config file if it exists
-        if {[file exists "~/.gitk"]} {
-            set config_file "~/.gitk"
-            set config_file_tmp "~/.gitk-tmp"
+        if {[file exists [tilde_expand "~/.gitk"]]} {
+            set config_file     [tilde_expand "~/.gitk"]
+            set config_file_tmp [tilde_expand "~/.gitk-tmp"]
         } elseif {![file exists [file dirname $config_file]]} {
             file mkdir [file dirname $config_file]
         }
@@ -12830,8 +12859,6 @@ set nullid "0000000000000000000000000000000000000000"
 set nullid2 "0000000000000000000000000000000000000001"
 set nullfile "/dev/null"
 
-set have_tk85 [expr {[package vcompare $tk_version "8.5"] >= 0}]
-set have_tk86 [expr {[package vcompare $tk_version "8.6"] >= 0}]
 if {![info exists have_ttk]} {
     set have_ttk [llength [info commands ::ttk::style]]
 }
