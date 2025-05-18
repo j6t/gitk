@@ -1,0 +1,27 @@
+Tên  :    Makefile CI
+
+lên:
+  đẩy :
+  Nhánh  :   [ "bậc thầy" ]
+  yêu cầu kéo :
+  Nhánh  :   [ "bậc thầy" ]
+
+công việc:
+  xây dựng :
+
+  Chạy  :   Ubuntu-Latest
+
+  bước chân :
+       -    Sử dụng  :    hành động / thanh toán@v4
+
+       -    Tên  :    Cấu hình
+  chạy  :   ./ Cấu hình
+
+       -    Tên  :    Cài đặt phụ thuộc
+  chạy  :   tạo
+
+       -    Tên  :    Kiểm tra chạy
+  chạy  :   Kiểm tra
+
+       -    Tên  :    Chạy chầu chầu
+  chạy  :   Kiểm tra kỹ lưỡng
