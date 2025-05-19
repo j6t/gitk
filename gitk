@@ -2036,14 +2036,6 @@ proc ttk_toplevel {w args} {
 }
 
 proc make_transient {window origin} {
-    global have_tk85
-
-    # In MacOS Tk 8.4 transient appears to work by setting
-    # overrideredirect, which is utterly useless, since the
-    # windows get no border, and are not even kept above
-    # the parent.
-    if {!$have_tk85 && [tk windowingsystem] eq {aqua}} return
-
     wm transient $window $origin
 
     # Windows fails to place transient windows normally, so
@@ -2279,7 +2271,7 @@ proc makewindow {} {
     global headctxmenu progresscanv progressitem progresscoords statusw
     global fprogitem fprogcoord lastprogupdate progupdatepending
     global rprogitem rprogcoord rownumsel numcommits
-    global have_tk85 have_tk86 use_ttk NS
+    global use_ttk NS
     global git_version
     global worddiff
     global scroll_D0
@@ -2615,9 +2607,7 @@ proc makewindow {} {
         -state disabled -undo 0 -font textfont \
         -yscrollcommand scrolltext -wrap $wrapdefault \
         -xscrollcommand ".bleft.bottom.sbhorizontal set"
-    if {$have_tk85} {
-        $ctext conf -tabstyle wordprocessor
-    }
+    $ctext conf -tabstyle wordprocessor
     ${NS}::scrollbar .bleft.bottom.sb -command "$ctext yview"
     ${NS}::scrollbar .bleft.bottom.sbhorizontal -command "$ctext xview" -orient h
     pack .bleft.top -side top -fill x
@@ -2768,13 +2758,8 @@ proc makewindow {} {
     bind . <Key-Down> "selnextline 1"
     bind . <Shift-Key-Up> "dofind -1 0"
     bind . <Shift-Key-Down> "dofind 1 0"
-    if {$have_tk86} {
-        bindkey <<NextChar>> "goforw"
-        bindkey <<PrevChar>> "goback"
-    } else {
-        bindkey <Key-Right> "goforw"
-        bindkey <Key-Left> "goback"
-    }
+    bindkey <<NextChar>> "goforw"
+    bindkey <<PrevChar>> "goback"
     bind . <Key-Prior> "selnextpage -1"
     bind . <Key-Next> "selnextpage 1"
     bind . <$M1B-Home> "allcanvs yview moveto 0.0"
@@ -8621,19 +8606,17 @@ proc clear_ctext {{first 1.0}} {
 }
 
 proc settabs {{firstab {}}} {
-    global firsttabstop tabstop ctext have_tk85
+    global firsttabstop tabstop ctext
 
-    if {$firstab ne {} && $have_tk85} {
+    if {$firstab ne {}} {
         set firsttabstop $firstab
     }
     set w [font measure textfont "0"]
     if {$firsttabstop != 0} {
         $ctext conf -tabs [list [expr {($firsttabstop + $tabstop) * $w}] \
                                [expr {($firsttabstop + 2 * $tabstop) * $w}]]
-    } elseif {$have_tk85 || $tabstop != 8} {
-        $ctext conf -tabs [expr {$tabstop * $w}]
     } else {
-        $ctext conf -tabs {}
+        $ctext conf -tabs [expr {$tabstop * $w}]
     }
 }
 
@@ -12787,8 +12770,6 @@ set nullid "0000000000000000000000000000000000000000"
 set nullid2 "0000000000000000000000000000000000000001"
 set nullfile "/dev/null"
 
-set have_tk85 [expr {[package vcompare $tk_version "8.5"] >= 0}]
-set have_tk86 [expr {[package vcompare $tk_version "8.6"] >= 0}]
 if {![info exists have_ttk]} {
     set have_ttk [llength [info commands ::ttk::style]]
 }
