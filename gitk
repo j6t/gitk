@@ -113,6 +113,33 @@ if {[is_Windows]} {
 
 # End of safe PATH lookup stuff
 
+proc have_pbcopy {} {
+    if {$::tcl_platform(os) ne {Darwin}} {
+        return 0
+    }
+    if {[catch { exec -ignorestderr -- pbcopy -help 2>@1 } helptext] != 0 } {
+        return 0
+    }
+    if {![string match "*Usage: pbcopy*" $helptext]} {
+        return 0
+    }
+    return 1
+}
+
+if {[have_pbcopy]} {
+    proc set_clipboard {text} {
+        # Using `pbcopy` works around
+        # https://core.tcl-lang.org/tk/tktview/e94c8bc845b4d5a658cd5421ef23ef2484560fa8
+        # `clipboard append` trims the last newline, so we do too.
+        exec pbcopy << [string trimright $text "\n"]
+    }
+} else {
+    proc set_clipboard {text} {
+        clipboard clear
+        clipboard append -- $text
+    }
+}
+
 # Wrap exec/open to sanitize arguments
 
 # unsafe arguments begin with redirections or the pipe or background operators
@@ -2886,7 +2913,7 @@ proc makewindow {} {
         {mc "Check out this branch" command cobranch}
         {mc "Rename this branch" command mvbranch}
         {mc "Remove this branch" command rmbranch}
-        {mc "Copy branch name" command {clipboard clear; clipboard append $headmenuhead}}
+        {mc "Copy branch name" command {set_clipboard $headmenuhead}}
     }
     $headctxmenu configure -tearoff 0
 
@@ -2897,7 +2924,7 @@ proc makewindow {} {
         {mc "Highlight this only" command {flist_hl 1}}
         {mc "External diff" command {external_diff}}
         {mc "Blame parent commit" command {external_blame 1}}
-        {mc "Copy path" command {clipboard clear; clipboard append $flist_menu_file}}
+        {mc "Copy path" command {set_clipboard $flist_menu_file}}
     }
     $flist_menu configure -tearoff 0
 
@@ -7597,8 +7624,7 @@ proc selectline {l isnew {desired_loc {}} {switch_to_patch 0}} {
         $sha1entry selection range 0 $autosellen
     }
     if {$autocopy} {
-        clipboard clear
-        clipboard append [string range $id 0 [expr $autosellen - 1]]
+        set_clipboard [string range $id 0 [expr $autosellen - 1]]
     }
     rhighlight_sel $id
 
@@ -9660,8 +9686,7 @@ proc copyreference {} {
     }
     set reference [safe_exec [concat $cmd $rowmenuid]]
 
-    clipboard clear
-    clipboard append $reference
+    set_clipboard $reference
 }
 
 proc writecommit {} {
