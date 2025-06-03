@@ -3176,8 +3176,6 @@ proc resizecdetpanes {win w} {
             set s0 $oldsash($win)
         } elseif {$use_ttk} {
             set s0 [$win sashpos 0]
-        } else {
-            set s0 [$win sash coord 0]
         }
         if {$w < 60} {
             set sash0 [expr {int($w*3/4 - 2)}]
@@ -11716,10 +11714,8 @@ proc create_prefs_page {w} {
 }
 
 proc prefspage_general {notebook} {
-    global NS maxwidth maxgraphpct showneartags showlocalchanges
-    global tabstop wrapcomment wrapdefault limitdiffs
-    global autocopy autoselect autosellen extdifftool perfile_attrs
-    global hideremotes want_ttk have_ttk maxrefs web_browser kscroll
+	global have_ttk NS
+    global {*}$::config_variables
 
     set page [create_prefs_page $notebook.general]
 
@@ -11875,11 +11871,9 @@ proc prefspage_fonts {notebook} {
 }
 
 proc doprefs {} {
-    global maxwidth maxgraphpct use_ttk NS
-    global oldprefs prefstop showneartags showlocalchanges
-    global uicolor bgcolor fgcolor ctext diffcolors selectbgcolor markbgcolor
-    global tabstop limitdiffs autoselect autosellen extdifftool perfile_attrs
-    global hideremotes want_ttk have_ttk wrapcomment wrapdefault kscroll
+    global use_ttk NS
+    global oldprefs prefstop
+    global {*}$::config_variables
 
     set top .gitkprefs
     set prefstop $top
@@ -11887,9 +11881,7 @@ proc doprefs {} {
         raise $top
         return
     }
-    foreach v {maxwidth maxgraphpct showneartags showlocalchanges \
-                   limitdiffs tabstop perfile_attrs hideremotes want_ttk \
-                   wrapcomment wrapdefault kscroll} {
+    foreach v $::config_variables {
         set oldprefs($v) [set $v]
     }
     ttk_toplevel $top
@@ -12013,11 +12005,9 @@ proc setfg {c} {
 
 proc prefscan {} {
     global oldprefs prefstop
+    global {*}$::config_variables
 
-    foreach v {maxwidth maxgraphpct showneartags showlocalchanges \
-                   limitdiffs tabstop perfile_attrs hideremotes want_ttk \
-                   wrapcomment wrapdefault kscroll} {
-        global $v
+    foreach v $::config_variables {
         set $v $oldprefs($v)
     }
     catch {destroy $prefstop}
@@ -12026,11 +12016,10 @@ proc prefscan {} {
 }
 
 proc prefsok {} {
-    global maxwidth maxgraphpct
-    global oldprefs prefstop showneartags showlocalchanges
+    global oldprefs prefstop
     global fontpref mainfont textfont uifont
     global limitdiffs treediffs perfile_attrs
-    global hideremotes wrapcomment wrapdefault
+    global {*}$::config_variables
     global ctext
 
     catch {destroy $prefstop}
