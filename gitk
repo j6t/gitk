@@ -17,6 +17,22 @@ if {[catch {package require Tcl 8.6-} err]} {
     exit 1
 }
 
+set MIN_GIT_VERSION 2.20
+regexp {^git version ([\d.]*\.[\d*])} [exec git version] _ git_version
+if {[package vcompare $git_version $MIN_GIT_VERSION] < 0} {
+    set msg1 "Insufficient git version\nrequire: $MIN_GIT_VERSION"
+    set msg2 "git returned: $git_version"
+    set message "$msg1\n$msg2"
+
+    catch {wm withdraw .}
+    tk_messageBox \
+        -icon error \
+        -type ok \
+        -title "gitk: fatal error" \
+        -message $message
+    exit 1
+}
+
 ######################################################################
 ## Enable Tcl8 profile in Tcl9, allowing consumption of data that has
 ## bytes not conforming to the assumed encoding profile.
@@ -12954,8 +12970,6 @@ set NS [expr {$use_ttk ? "ttk" : ""}]
 if {$use_ttk} {
     setttkstyle
 }
-
-regexp {^git version ([\d.]*\d)} [exec git version] _ git_version
 
 set show_notes {}
 if {[package vcompare $git_version "1.6.6.2"] >= 0} {
