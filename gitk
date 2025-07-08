@@ -7,7 +7,35 @@ exec wish "$0" -- "$@"
 # and distributed under the terms of the GNU General Public Licence,
 # either version 2, or (at your option) any later version.
 
-package require Tk
+if {[catch {package require Tcl 8.6-} err]} {
+    catch {wm withdraw .}
+    tk_messageBox \
+        -icon error \
+        -type ok \
+        -title "gitk: fatal error" \
+        -message $err
+    exit 1
+}
+
+######################################################################
+## Enable Tcl8 profile in Tcl9, allowing consumption of data that has
+## bytes not conforming to the assumed encoding profile.
+
+if {[package vcompare $::tcl_version 9.0] >= 0} {
+    rename open _strict_open
+    proc open args {
+        set f [_strict_open {*}$args]
+        chan configure $f -profile tcl8
+        return $f
+    }
+    proc convertfrom args {
+        return [encoding convertfrom -profile tcl8 {*}$args]
+    }
+} else {
+    proc convertfrom args {
+        return [encoding convertfrom {*}$args]
+    }
+}
 
 ######################################################################
 ##
@@ -2091,14 +2119,6 @@ proc ttk_toplevel {w args} {
 }
 
 proc make_transient {window origin} {
-    global have_tk85
-
-    # In MacOS Tk 8.4 transient appears to work by setting
-    # overrideredirect, which is utterly useless, since the
-    # windows get no border, and are not even kept above
-    # the parent.
-    if {!$have_tk85 && [tk windowingsystem] eq {aqua}} return
-
     wm transient $window $origin
 
     # Windows fails to place transient windows normally, so
@@ -2272,6 +2292,50 @@ proc makedroplist {w varname args} {
     return $gm
 }
 
+proc scrollval {D {koff 0}} {
+    global kscroll scroll_D0
+    return [expr int(-($D / $scroll_D0) * max(1, $kscroll-$koff))]
+}
+
+proc bind_mousewheel {} {
+    global canv cflist ctext
+    bindall <MouseWheel> {allcanvs yview scroll [scrollval %D] units}
+    bindall <Shift-MouseWheel> break
+    bind $ctext <MouseWheel> {$ctext yview scroll [scrollval %D 2] units}
+    bind $ctext <Shift-MouseWheel> {$ctext xview scroll [scrollval %D 2] units}
+    bind $cflist <MouseWheel> {$cflist yview scroll [scrollval %D 2] units}
+    bind $cflist <Shift-MouseWheel> break
+    bind $canv <Shift-MouseWheel> {$canv xview scroll [scrollval %D] units}
+
+    if {[package vcompare $::tcl_version 8.7] >= 0} {
+        bindall <Alt-MouseWheel> {allcanvs yview scroll [scrollval 5*%D] units}
+        bindall <Alt-Shift-MouseWheel> break
+        bind $ctext <Alt-MouseWheel> {$ctext yview scroll [scrollval 5*%D 2] units}
+        bind $ctext <Alt-Shift-MouseWheel> {$ctext xview scroll [scrollval 5*%D 2] units}
+        bind $cflist <Alt-MouseWheel> {$cflist yview scroll [scrollval 5*%D 2] units}
+        bind $cflist <Alt-Shift-MouseWheel> break
+        bind $canv <Alt-Shift-MouseWheel> {$canv xview scroll [scrollval 5*%D] units}
+    }
+}
+
+proc bind_mousewheel_buttons {} {
+    global canv cflist ctext
+        bindall <ButtonRelease-4> {allcanvs yview scroll [scrollval 1] units}
+        bindall <ButtonRelease-5> {allcanvs yview scroll [scrollval -1] units}
+        bindall <Shift-ButtonRelease-4> break
+        bindall <Shift-ButtonRelease-5> break
+        bind $ctext <ButtonRelease-4> {$ctext yview scroll [scrollval 1 2] units}
+        bind $ctext <ButtonRelease-5> {$ctext yview scroll  [scrollval -1 2] units}
+        bind $ctext <Shift-ButtonRelease-4> {$ctext xview scroll [scrollval 1 2] units}
+        bind $ctext <Shift-ButtonRelease-5> {$ctext xview scroll  [scrollval -1 2] units}
+        bind $cflist <ButtonRelease-4> {$cflist yview scroll [scrollval 1 2] units}
+        bind $cflist <ButtonRelease-5> {$cflist yview scroll  [scrollval -1 2] units}
+        bind $cflist <Shift-ButtonRelease-4> break
+        bind $cflist <Shift-ButtonRelease-5> break
+        bind $canv <Shift-ButtonRelease-4> {$canv xview scroll [scrollval 1] units}
+        bind $canv <Shift-ButtonRelease-5> {$canv xview scroll [scrollval -1] units}
+}
+
 proc makewindow {} {
     global canv canv2 canv3 linespc charspc ctext cflist cscroll
     global tabstop
@@ -2290,10 +2354,11 @@ proc makewindow {} {
     global headctxmenu progresscanv progressitem progresscoords statusw
     global fprogitem fprogcoord lastprogupdate progupdatepending
     global rprogitem rprogcoord rownumsel numcommits
-    global have_tk85 have_tk86 use_ttk NS
+    global use_ttk NS
     global git_version
     global worddiff
     global hashlength
+    global scroll_D0
 
     # The "mc" arguments here are purely so that xgettext
     # sees the following string as needing to be translated
@@ -2377,6 +2442,7 @@ proc makewindow {} {
     canvas $canv \
         -selectbackground $selectbgcolor \
         -background $bgcolor -bd 0 \
+        -xscrollincr $linespc \
         -yscrollincr $linespc -yscrollcommand "scrollcanv $cscroll"
     .tf.histframe.pwclist add $canv
     set canv2 .tf.histframe.pwclist.canv2
@@ -2625,9 +2691,7 @@ proc makewindow {} {
         -state disabled -undo 0 -font textfont \
         -yscrollcommand scrolltext -wrap $wrapdefault \
         -xscrollcommand ".bleft.bottom.sbhorizontal set"
-    if {$have_tk85} {
-        $ctext conf -tabstyle wordprocessor
-    }
+    $ctext conf -tabstyle wordprocessor
     ${NS}::scrollbar .bleft.bottom.sb -command "$ctext yview"
     ${NS}::scrollbar .bleft.bottom.sbhorizontal -command "$ctext xview" -orient h
     pack .bleft.top -side top -fill x
@@ -2746,30 +2810,19 @@ proc makewindow {} {
 
     pack .ctop -fill both -expand 1
     bindall <1> {selcanvline %W %x %y}
-    #bindall <B1-Motion> {selcanvline %W %x %y}
-    if {[tk windowingsystem] == "win32"} {
-        bind . <MouseWheel> { windows_mousewheel_redirector %W %X %Y %D }
-        bind $ctext <MouseWheel> { windows_mousewheel_redirector %W %X %Y %D ; break }
+
+    #Mouse / touchpad scrolling
+    if {[tk windowingsystem] == "win32" || [package vcompare $::tcl_version 8.7] >= 0} {
+        set scroll_D0 120
+        bind_mousewheel
+    } elseif {[tk windowingsystem] == "x11"} {
+        set scroll_D0 1
+        bind_mousewheel_buttons
+    } elseif {[tk windowingsystem] == "aqua"} {
+        set scroll_D0 1
+        bind_mousewheel
     } else {
-        bindall <ButtonRelease-4> "allcanvs yview scroll -5 units"
-        bindall <ButtonRelease-5> "allcanvs yview scroll 5 units"
-        bind $ctext <Button> {
-            if {"%b" eq 6} {
-                $ctext xview scroll -5 units
-            } elseif {"%b" eq 7} {
-                $ctext xview scroll 5 units
-            }
-        }
-        if {[tk windowingsystem] eq "aqua"} {
-            bindall <MouseWheel> {
-                set delta [expr {- (%D)}]
-                allcanvs yview scroll $delta units
-            }
-            bindall <Shift-MouseWheel> {
-                set delta [expr {- (%D)}]
-                $canv xview scroll $delta units
-            }
-        }
+        puts stderr "Unknown windowing system, cannot bind mouse"
     }
     bindall <$::BM> "canvscan mark %W %x %y"
     bindall <B$::BM-Motion> "canvscan dragto %W %x %y"
@@ -2781,13 +2834,8 @@ proc makewindow {} {
     bind . <Key-Down> "selnextline 1"
     bind . <Shift-Key-Up> "dofind -1 0"
     bind . <Shift-Key-Down> "dofind 1 0"
-    if {$have_tk86} {
-        bindkey <<NextChar>> "goforw"
-        bindkey <<PrevChar>> "goback"
-    } else {
-        bindkey <Key-Right> "goforw"
-        bindkey <Key-Left> "goback"
-    }
+    bindkey <<NextChar>> "goforw"
+    bindkey <<PrevChar>> "goback"
     bind . <Key-Prior> "selnextpage -1"
     bind . <Key-Next> "selnextpage 1"
     bind . <$M1B-Home> "allcanvs yview moveto 0.0"
@@ -2912,24 +2960,6 @@ proc makewindow {} {
         {mc "Run git gui blame on this line" command {external_blame_diff}}
     }
     $diff_menu configure -tearoff 0
-}
-
-# Windows sends all mouse wheel events to the current focused window, not
-# the one where the mouse hovers, so bind those events here and redirect
-# to the correct window
-proc windows_mousewheel_redirector {W X Y D} {
-    global canv canv2 canv3
-    set w [winfo containing -displayof $W $X $Y]
-    if {$w ne ""} {
-        set u [expr {$D < 0 ? 5 : -5}]
-        if {$w == $canv || $w == $canv2 || $w == $canv3} {
-            allcanvs yview scroll $u units
-        } else {
-            catch {
-                $w yview scroll $u units
-            }
-        }
-    }
 }
 
 # Update row number label when selectedline changes
@@ -7933,7 +7963,7 @@ proc gettree {id} {
             set treepending $id
             set treefilelist($id) {}
             set treeidlist($id) {}
-            fconfigure $gtf -blocking 0 -encoding binary
+            fconfigure $gtf -blocking 0 -translation binary
             filerun $gtf [list gettreeline $gtf $id]
         }
     } else {
@@ -7960,7 +7990,7 @@ proc gettreeline {gtf id} {
         if {[string index $fname 0] eq "\""} {
             set fname [lindex $fname 0]
         }
-        set fname [encoding convertfrom utf-8 $fname]
+        set fname [convertfrom utf-8 $fname]
         lappend treefilelist($id) $fname
     }
     if {![eof $gtf]} {
@@ -8196,7 +8226,7 @@ proc gettreediffs {ids} {
 
     set treepending $ids
     set treediff {}
-    fconfigure $gdtf -blocking 0 -encoding binary
+    fconfigure $gdtf -blocking 0 -translation binary
     filerun $gdtf [list gettreediffline $gdtf $ids]
 }
 
@@ -8222,7 +8252,7 @@ proc gettreediffline {gdtf ids} {
             if {[string index $file 0] eq "\""} {
                 set file [lindex $file 0]
             }
-            set file [encoding convertfrom utf-8 $file]
+            set file [convertfrom utf-8 $file]
             if {$file ne [lindex $treediff end]} {
                 lappend treediff $file
                 lappend sublist $file
@@ -8316,7 +8346,7 @@ proc getblobdiffs {ids} {
         error_popup [mc "Error getting diffs: %s" $err]
         return
     }
-    fconfigure $bdf -blocking 0 -encoding binary -eofchar {}
+    fconfigure $bdf -blocking 0 -translation binary
     set blobdifffd($ids) $bdf
     initblobdiffvars
     filerun $bdf [list getblobdiffline $bdf $diffids]
@@ -8367,7 +8397,7 @@ proc makediffhdr {fname ids} {
     global ctext curdiffstart treediffs diffencoding
     global ctext_file_names jump_to_here targetline diffline
 
-    set fname [encoding convertfrom utf-8 $fname]
+    set fname [convertfrom utf-8 $fname]
     set diffencoding [get_path_encoding $fname]
     set i [lsearch -exact $treediffs($ids) $fname]
     if {$i >= 0} {
@@ -8429,7 +8459,7 @@ proc parseblobdiffline {ids line} {
 
     if {![string compare -length 5 "diff " $line]} {
         if {![regexp {^diff (--cc|--git) } $line m type]} {
-            set line [encoding convertfrom utf-8 $line]
+            set line [convertfrom utf-8 $line]
             $ctext insert end "$line\n" hunksep
             continue
         }
@@ -8478,7 +8508,7 @@ proc parseblobdiffline {ids line} {
         makediffhdr $fname $ids
 
     } elseif {![string compare -length 16 "* Unmerged path " $line]} {
-        set fname [encoding convertfrom utf-8 [string range $line 16 end]]
+        set fname [convertfrom utf-8 [string range $line 16 end]]
         $ctext insert end "\n"
         set curdiffstart [$ctext index "end - 1c"]
         lappend ctext_file_names $fname
@@ -8491,7 +8521,7 @@ proc parseblobdiffline {ids line} {
 
     } elseif {![string compare -length 2 "@@" $line]} {
         regexp {^@@+} $line ats
-        set line [encoding convertfrom $diffencoding $line]
+        set line [convertfrom $diffencoding $line]
         $ctext insert end "$line\n" hunksep
         if {[regexp { \+(\d+),\d+ @@} $line m nl]} {
             set diffline $nl
@@ -8520,10 +8550,10 @@ proc parseblobdiffline {ids line} {
             $ctext insert end "$line\n" filesep
         }
     } elseif {$currdiffsubmod != "" && ![string compare -length 3 "  >" $line]} {
-        set line [encoding convertfrom $diffencoding $line]
+        set line [convertfrom $diffencoding $line]
         $ctext insert end "$line\n" dresult
     } elseif {$currdiffsubmod != "" && ![string compare -length 3 "  <" $line]} {
-        set line [encoding convertfrom $diffencoding $line]
+        set line [convertfrom $diffencoding $line]
         $ctext insert end "$line\n" d0
     } elseif {$diffinhdr} {
         if {![string compare -length 12 "rename from " $line]} {
@@ -8531,7 +8561,7 @@ proc parseblobdiffline {ids line} {
             if {[string index $fname 0] eq "\""} {
                 set fname [lindex $fname 0]
             }
-            set fname [encoding convertfrom utf-8 $fname]
+            set fname [convertfrom utf-8 $fname]
             set i [lsearch -exact $treediffs($ids) $fname]
             if {$i >= 0} {
                 setinlist difffilestart $i $curdiffstart
@@ -8550,12 +8580,12 @@ proc parseblobdiffline {ids line} {
             set diffinhdr 0
             return
         }
-        set line [encoding convertfrom utf-8 $line]
+        set line [convertfrom utf-8 $line]
         $ctext insert end "$line\n" filesep
 
     } else {
         set line [string map {\x1A ^Z} \
-                      [encoding convertfrom $diffencoding $line]]
+                      [convertfrom $diffencoding $line]]
         # parse the prefix - one ' ', '-' or '+' for each parent
         set prefix [string range $line 0 [expr {$diffnparents - 1}]]
         set tag [expr {$diffnparents > 1? "m": "d"}]
@@ -8707,19 +8737,17 @@ proc clear_ctext {{first 1.0}} {
 }
 
 proc settabs {{firstab {}}} {
-    global firsttabstop tabstop ctext have_tk85
+    global firsttabstop tabstop ctext
 
-    if {$firstab ne {} && $have_tk85} {
+    if {$firstab ne {}} {
         set firsttabstop $firstab
     }
     set w [font measure textfont "0"]
     if {$firsttabstop != 0} {
         $ctext conf -tabs [list [expr {($firsttabstop + $tabstop) * $w}] \
                                [expr {($firsttabstop + 2 * $tabstop) * $w}]]
-    } elseif {$have_tk85 || $tabstop != 8} {
-        $ctext conf -tabs [expr {$tabstop * $w}]
     } else {
-        $ctext conf -tabs {}
+        $ctext conf -tabs [expr {$tabstop * $w}]
     }
 }
 
@@ -11831,7 +11859,7 @@ proc prefspage_general {notebook} {
     global NS maxwidth maxgraphpct showneartags showlocalchanges
     global tabstop wrapcomment wrapdefault limitdiffs
     global autocopy autoselect autosellen extdifftool perfile_attrs
-    global hideremotes want_ttk have_ttk maxrefs web_browser
+    global hideremotes want_ttk have_ttk maxrefs web_browser kscroll
     global hashlength
 
     set page [create_prefs_page $notebook.general]
@@ -11865,6 +11893,9 @@ proc prefspage_general {notebook} {
     spinbox $page.autosellen -from 1 -to $hashlength -width 4 -textvariable autosellen
     ${NS}::label $page.autosellenl -text [mc "Length of commit ID to copy"]
     grid x $page.autosellenl $page.autosellen -sticky w
+    ttk::label $page.kscroll1 -text [mc "Wheel scrolling multiplier"]
+    spinbox $page.kscroll -from 1 -to 20 -width 4 -textvariable kscroll
+    grid x $page.kscroll1 $page.kscroll -sticky w
 
     ${NS}::label $page.ddisp -text [mc "Diff display options"] -font mainfontbold
     grid $page.ddisp - -sticky w -pady 10
@@ -11998,7 +12029,7 @@ proc doprefs {} {
     global oldprefs prefstop showneartags showlocalchanges
     global uicolor bgcolor fgcolor ctext diffcolors selectbgcolor markbgcolor
     global tabstop limitdiffs autoselect autosellen extdifftool perfile_attrs
-    global hideremotes want_ttk have_ttk wrapcomment wrapdefault
+    global hideremotes want_ttk have_ttk wrapcomment wrapdefault kscroll
 
     set top .gitkprefs
     set prefstop $top
@@ -12007,7 +12038,8 @@ proc doprefs {} {
         return
     }
     foreach v {maxwidth maxgraphpct showneartags showlocalchanges \
-                   limitdiffs tabstop perfile_attrs hideremotes want_ttk wrapcomment wrapdefault} {
+                   limitdiffs tabstop perfile_attrs hideremotes want_ttk \
+                   wrapcomment wrapdefault kscroll} {
         set oldprefs($v) [set $v]
     }
     ttk_toplevel $top
@@ -12133,7 +12165,8 @@ proc prefscan {} {
     global oldprefs prefstop
 
     foreach v {maxwidth maxgraphpct showneartags showlocalchanges \
-                   limitdiffs tabstop perfile_attrs hideremotes want_ttk wrapcomment wrapdefault} {
+                   limitdiffs tabstop perfile_attrs hideremotes want_ttk \
+                   wrapcomment wrapdefault kscroll} {
         global $v
         set $v $oldprefs($v)
     }
@@ -12550,7 +12583,7 @@ proc cache_gitattr {attr pathlist} {
             foreach row [split $rlist "\n"] {
                 if {[regexp "(.*): $attr: (.*)" $row m path value]} {
                     if {[string index $path 0] eq "\""} {
-                        set path [encoding convertfrom utf-8 [lindex $path 0]]
+                        set path [convertfrom utf-8 [lindex $path 0]]
                     }
                     set path_attr_cache($attr,$path) $value
                 }
@@ -12588,13 +12621,6 @@ package require msgcat
 namespace import ::msgcat::mc
 ## And eventually load the actual message catalog
 ::msgcat::mcload $gitk_msgsdir
-
-# First check that Tcl/Tk is recent enough
-if {[catch {package require Tk 8.4} err]} {
-    show_error {} . [mc "Sorry, gitk cannot run with this version of Tcl/Tk.\n\
-                         Gitk requires at least Tcl/Tk 8.4."]
-    exit 1
-}
 
 # on OSX bring the current Wish process window to front
 if {[tk windowingsystem] eq "aqua"} {
@@ -12690,6 +12716,7 @@ set visiblerefs {"master"}
 set maxlinelen 200
 set showlocalchanges 1
 set limitdiffs 1
+set kscroll 3
 set datetimeformat "%Y-%m-%d %H:%M:%S"
 set autocopy 0
 set autoselect 1
@@ -12771,14 +12798,14 @@ catch {
         set config_file_tmp [file join $env(XDG_CONFIG_HOME) git gitk-tmp]
     } else {
         # default XDG_CONFIG_HOME
-        set config_file "~/.config/git/gitk"
-        set config_file_tmp "~/.config/git/gitk-tmp"
+        set config_file "$env(HOME)/.config/git/gitk"
+        set config_file_tmp "$env(HOME)/.config/git/gitk-tmp"
     }
     if {![file exists $config_file]} {
         # for backward compatibility use the old config file if it exists
-        if {[file exists "~/.gitk"]} {
-            set config_file "~/.gitk"
-            set config_file_tmp "~/.gitk-tmp"
+        if {[file exists "$env(HOME)/.gitk"]} {
+            set config_file "$env(HOME)/.gitk"
+            set config_file_tmp "$env(HOME)/.gitk-tmp"
         } elseif {![file exists [file dirname $config_file]]} {
             file mkdir [file dirname $config_file]
         }
@@ -12799,7 +12826,7 @@ set config_variables {
     filesepbgcolor filesepfgcolor linehoverbgcolor linehoverfgcolor
     linehoveroutlinecolor mainheadcirclecolor workingfilescirclecolor
     indexcirclecolor circlecolors linkfgcolor circleoutlinecolor diffbgcolors
-    web_browser
+    web_browser kscroll
 }
 foreach var $config_variables {
     config_init_trace $var
@@ -12891,8 +12918,6 @@ set nullid "0000000000000000000000000000000000000000"
 set nullid2 "0000000000000000000000000000000000000001"
 set nullfile "/dev/null"
 
-set have_tk85 [expr {[package vcompare $tk_version "8.5"] >= 0}]
-set have_tk86 [expr {[package vcompare $tk_version "8.6"] >= 0}]
 if {![info exists have_ttk]} {
     set have_ttk [llength [info commands ::ttk::style]]
 }
