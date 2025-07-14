@@ -11535,7 +11535,6 @@ proc choosefont {font which} {
 }
 proc on_choosefont {font which newfont} {
     global fontparam
-    puts stderr "$font $newfont"
     array set f [font actual $newfont]
     set fontparam(which) $which
     set fontparam(font) $font
