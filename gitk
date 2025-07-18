@@ -10261,6 +10261,9 @@ proc showrefs {} {
     pack $top.f.e -side right -fill x -expand 1
     pack $top.f.l -side left
     grid $top.f - -sticky ew -pady 2
+    ${NS}::checkbutton $top.sort -text [mc "Sort refs by type"] \
+        -variable sortrefsbytype -command {refill_reflist}
+    grid $top.sort - -sticky w -pady 2
     ${NS}::button $top.close -command [list destroy $top] -text [mc "Close"]
     bind $top <Key-Escape> [list destroy $top]
     grid $top.close -
@@ -10356,7 +10359,14 @@ proc refill_reflist {} {
         }
     }
     set otherrefs [lsort -index 0 $otherrefs]
-    lappend refs {*}$localrefs {*}$remoterefs {*}$tagrefs {*}$otherrefs
+
+    if {$sortrefsbytype} {
+        lappend refs {*}$localrefs {*}$remoterefs {*}$tagrefs {*}$otherrefs
+    } else {
+        # Combine all refs and sort alphabetically
+        set allrefs [concat $localrefs $remoterefs $tagrefs $otherrefs]
+        set refs [lsort -index 0 $allrefs]
+    }
 
     if {$refs eq $reflist} return
 
@@ -12619,6 +12629,7 @@ set wrapcomment "none"
 set wrapdefault "none"
 set showneartags 1
 set hideremotes 0
+set sortrefsbytype 1
 set maxrefs 20
 set visiblerefs {"master"}
 set maxlinelen 200
@@ -12733,7 +12744,7 @@ set config_variables {
     filesepbgcolor filesepfgcolor linehoverbgcolor linehoverfgcolor
     linehoveroutlinecolor mainheadcirclecolor workingfilescirclecolor
     indexcirclecolor circlecolors linkfgcolor circleoutlinecolor diffbgcolors
-    web_browser
+    sortrefsbytype web_browser
 }
 foreach var $config_variables {
     config_init_trace $var
