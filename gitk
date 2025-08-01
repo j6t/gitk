@@ -389,7 +389,7 @@ proc unmerged_files {files} {
 proc parseviewargs {n arglist} {
     global vdatemode vmergeonly vflags vdflags vrevs vfiltered vorigargs env
     global vinlinediff
-    global worddiff
+    global worddiff gitdir
 
     set vdatemode($n) 0
     set vmergeonly($n) 0
@@ -484,7 +484,14 @@ proc parseviewargs {n arglist} {
             "--merge" {
                 set vmergeonly($n) 1
                 # git rev-parse doesn't understand --merge
-                lappend revargs --gitk-symmetric-diff-marker MERGE_HEAD...HEAD
+                # check MERGE_HEAD again at the end so that it appears in
+                # the error message when none of the _HEADs is found
+                foreach merge_head {MERGE_HEAD CHERRY_PICK_HEAD REVERT_HEAD REBASE_HEAD MERGE_HEAD} {
+                    if {[file exists [file join $gitdir $merge_head]]} {
+                        break
+                    }
+                }
+                lappend revargs --gitk-symmetric-diff-marker $merge_head...HEAD
             }
             "--no-replace-objects" {
                 set env(GIT_NO_REPLACE_OBJECTS) "1"
