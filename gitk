@@ -6796,7 +6796,8 @@ proc drawtags {id x xt y1} {
         lappend wvals $wid
         set xt [expr {$xt + $wid + $extra}]
     }
-    set t [$canv create line $x $y1 [lindex $xvals end] $y1 \
+    set yl [expr {$y1 - $lthickness}]
+    set t [$canv create line $x $yl [lindex $xvals end] $yl \
                -width $lthickness -fill $reflinecolor -tags tag.$id]
     $canv lower $t
     foreach tag $marks x $xvals wid $wvals {
