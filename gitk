@@ -3106,6 +3106,11 @@ proc savestuff {w} {
         puts $f "set geometry(pwsash1) \"[.tf.histframe.pwclist sashpos 1] 1\""
         puts $f "set geometry(botwidth) [winfo width .bleft]"
         puts $f "set geometry(botheight) [winfo height .bleft]"
+        if {[winfo exists .showrefs]} {
+            puts $f "set geometry(showrefs) \"[wm geometry .showrefs]\""
+        } elseif {[info exists geometry(showrefs)]} {
+            puts $f "set geometry(showrefs) \"$geometry(showrefs)\""
+        }
 
         array set view_save {}
         array set views {}
@@ -10199,11 +10204,13 @@ proc showrefs {} {
     if {[winfo exists $top]} {
         raise $top
         refill_reflist
+        wm protocol $top WM_DELETE_WINDOW [list destroy_showrefs $top]
         return
     }
     ttk_toplevel $top
     wm title $top [mc "Tags and heads: %s" [file tail [pwd]]]
     make_transient $top .
+    wm protocol $top WM_DELETE_WINDOW [list destroy_showrefs $top]
     text $top.list -background $bgcolor -foreground $fgcolor \
         -selectbackground $selectbgcolor -font mainfont \
         -xscrollcommand "$top.xsb set" -yscrollcommand "$top.ysb set" \
@@ -10229,8 +10236,8 @@ proc showrefs {} {
     ttk::checkbutton $top.sort -text [mc "Sort refs by type"] \
         -variable sortrefsbytype -command {refill_reflist}
     grid $top.sort - -sticky w -pady 2
-    ttk::button $top.close -command [list destroy $top] -text [mc "Close"]
-    bind $top <Key-Escape> [list destroy $top]
+    ttk::button $top.close -command [list destroy_showrefs $top] -text [mc "Close"]
+    bind $top <Key-Escape> [list destroy_showrefs $top]
     grid $top.close -
     grid columnconfigure $top 0 -weight 1
     grid rowconfigure $top 0 -weight 1
@@ -10239,6 +10246,9 @@ proc showrefs {} {
     bind $top.list <ButtonRelease-1> {sel_reflist %W %x %y; break}
     set reflist {}
     refill_reflist
+    # Restore geometry after the window is fully created and mapped
+    # Delay Configure binding to avoid overwriting restored geometry
+    bind $top <Map> [list after idle [list setup_showrefs_geometry_tracking $top]]
 }
 
 proc sel_reflist {w x y} {
@@ -10269,6 +10279,31 @@ proc reflistfilter_change {n1 n2 op} {
 
     after cancel refill_reflist
     after 200 refill_reflist
+}
+
+proc save_showrefs_geometry {top} {
+    global geometry
+    if {[winfo exists $top]} {
+        set geometry(showrefs) [wm geometry $top]
+    }
+}
+
+proc restore_showrefs_geometry {top} {
+    global geometry
+    if {[info exists geometry(showrefs)] && [winfo exists $top]} {
+        wm geometry $top $geometry(showrefs)
+    }
+}
+
+proc setup_showrefs_geometry_tracking {top} {
+    restore_showrefs_geometry $top
+    bind $top <Configure> [list save_showrefs_geometry $top]
+}
+
+proc destroy_showrefs {top} {
+    save_showrefs_geometry $top
+    savestuff .
+    destroy $top
 }
 
 proc refill_reflist {} {
