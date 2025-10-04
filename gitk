@@ -3106,6 +3106,11 @@ proc savestuff {w} {
         puts $f "set geometry(pwsash1) \"[.tf.histframe.pwclist sashpos 1] 1\""
         puts $f "set geometry(botwidth) [winfo width .bleft]"
         puts $f "set geometry(botheight) [winfo height .bleft]"
+        unset -nocomplain geometry
+        global geometry
+        if {[info exists geometry(showrefs)]} {
+            puts $f "set geometry(showrefs) $geometry(showrefs)"
+        }
 
         array set view_save {}
         array set views {}
@@ -10193,6 +10198,7 @@ proc rmbranch {} {
 proc showrefs {} {
     global showrefstop bgcolor fgcolor selectbgcolor
     global bglist fglist reflistfilter reflist maincursor
+    global geometry
 
     set top .showrefs
     set showrefstop $top
@@ -10239,6 +10245,12 @@ proc showrefs {} {
     bind $top.list <ButtonRelease-1> {sel_reflist %W %x %y; break}
     set reflist {}
     refill_reflist
+    if {[info exists geometry(showrefs)]} {
+        after idle [list wm geometry $top $geometry(showrefs)]
+    }
+    # avoid <Configure> being bound to child windows
+    bindtags $top [linsert [bindtags $top] 1 bind$top]
+    bind bind$top <Configure> {set geometry(showrefs) [wm geometry %W]}
 }
 
 proc sel_reflist {w x y} {
