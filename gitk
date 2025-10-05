@@ -2627,7 +2627,6 @@ proc makewindow {} {
         -command changeignorespace -variable ignorespace
     pack .bleft.mid.ignspace -side left -padx 5
 
-    set worddiff [mc "Line diff"]
     makedroplist .bleft.mid.worddiff worddiff [mc "Line diff"] \
         [mc "Markup words"] [mc "Color words"]
     trace add variable worddiff write changeworddiff
@@ -12624,7 +12623,7 @@ set diffbgcolors {"#fff3f3" "#f0fff0"}
 set diffcontext 3
 set mergecolors {red blue "#00ff00" purple brown "#009090" magenta "#808000" "#009000" "#ff0080" cyan "#b07070" "#70b0f0" "#70f0b0" "#f0b070" "#ff70b0"}
 set ignorespace 0
-set worddiff ""
+set worddiff [mc "Line diff"]
 set markbgcolor "#e0e0ff"
 
 set headbgcolor "#00ff00"
@@ -12711,6 +12710,7 @@ set config_variables {
     headfgcolor
     headoutlinecolor
     hideremotes
+    ignorespace
     indexcirclecolor
     kscroll
     limitdiffs
@@ -12746,6 +12746,7 @@ set config_variables {
     uifont
     visiblerefs
     web_browser
+    worddiff
     workingfilescirclecolor
     wrapcomment
     wrapdefault
