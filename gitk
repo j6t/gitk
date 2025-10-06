@@ -2138,12 +2138,14 @@ proc ttk_toplevel {w args} {
     return $w
 }
 
-proc make_transient {window origin} {
+proc make_transient {window origin {geometry ""}} {
     wm transient $window $origin
 
-    # Windows fails to place transient windows normally, so
-    # schedule a callback to center them on the parent.
-    if {[tk windowingsystem] eq {win32}} {
+    if {$geometry ne ""} {
+        after idle [list wm geometry $window $geometry]
+    } elseif {[tk windowingsystem] eq {win32}} {
+        # Windows fails to place transient windows normally, so
+        # schedule a callback to center them on the parent.
         after idle [list tk::PlaceWindow $window widget $origin]
     }
 }
@@ -10223,9 +10225,14 @@ proc showrefs {} {
         refill_reflist
         return
     }
+    if {[info exists geometry(showrefs)]} {
+        set wndpos $geometry(showrefs)
+    } else {
+        set wndpos {}
+    }
     ttk_toplevel $top
     wm title $top [mc "Tags and heads: %s" [file tail [pwd]]]
-    make_transient $top .
+    make_transient $top . $wndpos
     text $top.list -background $bgcolor -foreground $fgcolor \
         -selectbackground $selectbgcolor -font mainfont \
         -xscrollcommand "$top.xsb set" -yscrollcommand "$top.ysb set" \
@@ -10261,9 +10268,6 @@ proc showrefs {} {
     bind $top.list <ButtonRelease-1> {sel_reflist %W %x %y; break}
     set reflist {}
     refill_reflist
-    if {[info exists geometry(showrefs)]} {
-        after idle [list wm geometry $top $geometry(showrefs)]
-    }
     # avoid <Configure> being bound to child windows
     bindtags $top [linsert [bindtags $top] 1 bind$top]
     bind bind$top <Configure> {set geometry(showrefs) [wm geometry %W]}
