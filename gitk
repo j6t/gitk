@@ -2372,7 +2372,8 @@ proc bind_mousewheel_buttons {} {
 }
 
 proc makewindow {} {
-    global canv canv2 canv3 linespc charspc ctext cflist cscroll
+    global canv canv2 linespc charspc ctext cflist cscroll
+    global clistpaneratio
     global tabstop
     global findtype findtypemenu findloc findstring fstring geometry
     global entries sha1entry sha1string sha1but
@@ -2455,6 +2456,17 @@ proc makewindow {} {
         set geometry(botwidth) [expr {50 * $charspc}]
         set geometry(pwsash0) [list [expr {40 * $charspc}] 2]
         set geometry(pwsash1) [list [expr {60 * $charspc}] 2]
+        set geometry(pwclistratio) 0.6
+    }
+    if {![info exists geometry(pwsash1)]} {
+        set geometry(pwsash1) [list [expr {60 * $charspc}] 2]
+    }
+    if {[info exists geometry(pwclistratio)]} {
+        set clistpaneratio $geometry(pwclistratio)
+    } else {
+        set clistpaneratio [expr {
+            1.0 * [lindex $geometry(pwsash0) 0] / $geometry(topwidth)
+        }]
     }
 
     # the upper half will have a paned window, a scroll bar to the right, and some stuff below
@@ -2462,7 +2474,7 @@ proc makewindow {} {
     ttk::frame .tf.histframe
     ttk::panedwindow .tf.histframe.pwclist -orient horizontal
 
-    # create three canvases
+    # create the commit and author/date canvases
     set cscroll .tf.histframe.csb
     set canv .tf.histframe.pwclist.canv
     canvas $canv \
@@ -2477,16 +2489,12 @@ proc makewindow {} {
         -selectbackground $selectbgcolor \
         -background $bgcolor -bd 0 -yscrollincr $linespc
     .tf.histframe.pwclist add $canv2
-    set canv3 .tf.histframe.pwclist.canv3
-    canvas $canv3 \
-        -selectbackground $selectbgcolor \
-        -background $bgcolor -bd 0 -yscrollincr $linespc
-    .tf.histframe.pwclist add $canv3
     bind .tf.histframe.pwclist <Map> {
         bind %W <Map> {}
-        .tf.histframe.pwclist sashpos 1 [lindex $::geometry(pwsash1) 0]
-        .tf.histframe.pwclist sashpos 0 [lindex $::geometry(pwsash0) 0]
+        resizeclistpanes .tf.histframe.pwclist \
+            [winfo width .tf.histframe.pwclist]
     }
+    bind $canv2 <Configure> {layout_author_dates %w}
 
     # a scroll bar to rule them (vertical), and one for horizontal scroll of left pane
     ttk::scrollbar $cscroll -command {allcanvs yview}
@@ -2494,7 +2502,10 @@ proc makewindow {} {
     ttk::scrollbar .tf.histframe.cxsb -orient horizontal -command "$canv xview"
     pack .tf.histframe.cxsb -side bottom -fill x
     bind .tf.histframe.pwclist <Configure> {resizeclistpanes %W %w}
-    lappend bglist $canv $canv2 $canv3
+    bind .tf.histframe.pwclist <ButtonRelease-1> {
+        after idle [list rememberclistpanes %W]
+    }
+    lappend bglist $canv $canv2
     pack .tf.histframe.pwclist -fill both -expand 1 -side left
 
     # we have two button bars at bottom of top frame. Bar 1
@@ -2923,8 +2934,8 @@ proc selectedline_change {n1 n2 op} {
 # mouse-2 makes all windows scan vertically, but only the one
 # the cursor is in scans horizontally
 proc canvscan {op w x y} {
-    global canv canv2 canv3
-    foreach c [list $canv $canv2 $canv3] {
+    global canv canv2
+    foreach c [list $canv $canv2] {
         if {$c == $w} {
             $c scan $op $x $y
         } else {
@@ -3026,6 +3037,7 @@ proc savestuff {w} {
     global config_file config_file_tmp
     global config_variables config_variable_changed
     global viewchanged
+    global clistpaneratio
 
     upvar #0 viewname current_viewname
     upvar #0 viewfiles current_viewfiles
@@ -3033,6 +3045,7 @@ proc savestuff {w} {
     upvar #0 viewargscmd current_viewargscmd
     upvar #0 viewperm current_viewperm
     upvar #0 nextviewnum current_nextviewnum
+    upvar #0 geometry current_geometry
 
     if {$stuffsaved} return
     if {![winfo viewable .]} return
@@ -3066,8 +3079,9 @@ proc savestuff {w} {
         puts $f "set geometry(state) [wm state .]"
         puts $f "set geometry(topwidth) [winfo width .tf]"
         puts $f "set geometry(topheight) [winfo height .tf]"
-        puts $f "set geometry(pwsash0) \"[.tf.histframe.pwclist sashpos 0] 1\""
-        puts $f "set geometry(pwsash1) \"[.tf.histframe.pwclist sashpos 1] 1\""
+        puts $f [list set geometry(pwsash0) $current_geometry(pwsash0)]
+        puts $f [list set geometry(pwsash1) $current_geometry(pwsash1)]
+        puts $f "set geometry(pwclistratio) $clistpaneratio"
         puts $f "set geometry(botwidth) [winfo width .bleft]"
         puts $f "set geometry(botheight) [winfo height .bleft]"
         unset -nocomplain geometry
@@ -3117,41 +3131,33 @@ proc savestuff {w} {
     set stuffsaved 1
 }
 
-proc resizeclistpanes {win w} {
-    global oldwidth oldsash
-    if {[info exists oldwidth($win)]} {
-        if {[info exists oldsash($win)]} {
-            set s0 [lindex $oldsash($win) 0]
-            set s1 [lindex $oldsash($win) 1]
-        } else {
-            set s0 [$win sashpos 0]
-            set s1 [$win sashpos 1]
-        }
-        if {$w < 60} {
-            set sash0 [expr {int($w/2 - 2)}]
-            set sash1 [expr {int($w*5/6 - 2)}]
-        } else {
-            set factor [expr {1.0 * $w / $oldwidth($win)}]
-            set sash0 [expr {int($factor * [lindex $s0 0])}]
-            set sash1 [expr {int($factor * [lindex $s1 0])}]
-            if {$sash0 < 30} {
-                set sash0 30
-            }
-            if {$sash1 < $sash0 + 20} {
-                set sash1 [expr {$sash0 + 20}]
-            }
-            if {$sash1 > $w - 10} {
-                set sash1 [expr {$w - 10}]
-                if {$sash0 > $sash1 - 20} {
-                    set sash0 [expr {$sash1 - 20}]
-                }
-            }
-        }
-        $win sashpos 0 $sash0
-        $win sashpos 1 $sash1
-        set oldsash($win) [list $sash0 $sash1]
+proc rememberclistpanes {win} {
+    global clistpaneratio
+
+    set w [winfo width $win]
+    if {$w > 0} {
+        set clistpaneratio [expr {1.0 * [$win sashpos 0] / $w}]
     }
-    set oldwidth($win) $w
+}
+
+proc resizeclistpanes {win w} {
+    global clistpaneratio
+
+    if {![info exists clistpaneratio]} {
+        rememberclistpanes $win
+    }
+    if {$w < 60} {
+        set sash0 [expr {int($w/2 - 2)}]
+    } else {
+        set sash0 [expr {int($clistpaneratio * $w)}]
+        if {$sash0 < 30} {
+            set sash0 30
+        }
+        if {$sash0 > $w - 20} {
+            set sash0 [expr {$w - 20}]
+        }
+    }
+    $win sashpos 0 $sash0
 }
 
 proc resizecdetpanes {win w} {
@@ -3181,17 +3187,15 @@ proc resizecdetpanes {win w} {
 }
 
 proc allcanvs args {
-    global canv canv2 canv3
+    global canv canv2
     eval $canv $args
     eval $canv2 $args
-    eval $canv3 $args
 }
 
 proc bindall {event action} {
-    global canv canv2 canv3
+    global canv canv2
     bind $canv $event $action
     bind $canv2 $event $action
-    bind $canv3 $event $action
 }
 
 proc about {} {
@@ -4801,16 +4805,17 @@ proc bolden {id font} {
 
 proc bolden_name {id font} {
     global canv2 linentag currentid boldnameids need_redisplay
+    global markingmatches
 
     if {$need_redisplay} return
     lappend boldnameids $id
     $canv2 itemconf $linentag($id) -font $font
+    layout_author_date $id [winfo width $canv2]
     if {[info exists currentid] && $id eq $currentid} {
-        $canv2 delete secsel
-        set t [eval $canv2 create rect [$canv2 bbox $linentag($id)] \
-                   -outline {{}} -tags secsel \
-                   -fill [$canv2 cget -selectbackground]]
-        $canv2 lower $t
+        make_secsel $id
+    }
+    if {$markingmatches} {
+        markrowmatches [rowofcommit $id] $id
     }
 }
 
@@ -5125,7 +5130,7 @@ proc askfindhighlight {row id} {
 }
 
 proc markrowmatches {row id} {
-    global canv canv2 linehtag linentag commitinfo findloc
+    global canv canv2 linehtag linentag commitinfo findloc authorchars
 
     set headline [lindex $commitinfo($id) 0]
     set author [lindex $commitinfo($id) 1]
@@ -5141,8 +5146,12 @@ proc markrowmatches {row id} {
     if {$findloc eq [mc "All fields"] || $findloc eq [mc "Author"]} {
         set m [findmatches $author]
         if {$m ne {}} {
+            set visiblechars {}
+            if {[info exists authorchars($id)]} {
+                set visiblechars $authorchars($id)
+            }
             markmatches $canv2 $row $author $linentag($id) $m \
-                [$canv2 itemcget $linentag($id) -font] $row
+                [$canv2 itemcget $linentag($id) -font] $row $visiblechars
         }
     }
 }
@@ -5390,13 +5399,12 @@ proc initlayout {} {
 }
 
 proc setcanvscroll {} {
-    global canv canv2 canv3 numcommits linespc canvxmax canvy0
+    global canv canv2 numcommits linespc canvxmax canvy0
     global lastscrollset lastscrollrows
 
     set ymax [expr {$canvy0 + ($numcommits - 0.5) * $linespc + 2}]
     $canv conf -scrollregion [list 0 0 $canvxmax $ymax]
     $canv2 conf -scrollregion [list 0 0 0 $ymax]
-    $canv3 conf -scrollregion [list 0 0 0 $ymax]
     set lastscrollset [clock clicks -milliseconds]
     set lastscrollrows $numcommits
 }
@@ -6312,8 +6320,83 @@ proc drawlines {id} {
     $canv itemconf lines.$id -width [linewidth $id]
 }
 
+proc truncate_author {text font width} {
+    if {$width <= 0 || $text eq {}} {
+        return [list {} 0]
+    }
+    if {[font measure $font $text] <= $width} {
+        return [list $text [string length $text]]
+    }
+
+    set suffix "..."
+    set suffixwidth [font measure $font $suffix]
+    if {$suffixwidth > $width} {
+        return [list {} 0]
+    }
+
+    set low 0
+    set high [string length $text]
+    while {$low < $high} {
+        set mid [expr {($low + $high + 1) / 2}]
+        set prefix [string range $text 0 [expr {$mid - 1}]]
+        if {[font measure $font $prefix] + $suffixwidth <= $width} {
+            set low $mid
+        } else {
+            set high [expr {$mid - 1}]
+        }
+    }
+    return [list "[string range $text 0 [expr {$low - 1}]]$suffix" $low]
+}
+
+proc layout_author_date {id width} {
+    global canv2 linentag linedtag commitinfo authorchars
+
+    if {![info exists linentag($id)] || ![info exists linedtag($id)]} {
+        return
+    }
+
+    set datefont [$canv2 itemcget $linedtag($id) -font]
+    set date [$canv2 itemcget $linedtag($id) -text]
+    set coords [$canv2 coords $linedtag($id)]
+    $canv2 coords $linedtag($id) [expr {$width - 3}] [lindex $coords 1]
+
+    set namefont [$canv2 itemcget $linentag($id) -font]
+    set namewidth [expr {$width - [font measure $datefont $date] - 14}]
+    set name [lindex $commitinfo($id) 1]
+    set truncated [truncate_author $name $namefont $namewidth]
+    $canv2 itemconf $linentag($id) -text [lindex $truncated 0]
+    set authorchars($id) [lindex $truncated 1]
+}
+
+proc layout_author_dates {width} {
+    global displayorder linentag currentid markingmatches
+
+    if {![array exists linentag]} {
+        return
+    }
+    set rows [visiblerows]
+    if {$rows eq {}} {
+        return
+    }
+    set ids {}
+    for {set row [lindex $rows 0]} {$row <= [lindex $rows 1]} {incr row} {
+        set id [lindex $displayorder $row]
+        if {![info exists linentag($id)]} continue
+        lappend ids $id
+        layout_author_date $id $width
+    }
+    if {[info exists currentid] && [info exists linentag($currentid)]} {
+        make_secsel $currentid
+    }
+    if {$markingmatches} {
+        foreach id $ids {
+            markrowmatches [rowofcommit $id] $id
+        }
+    }
+}
+
 proc drawcmittext {id row col} {
-    global linespc canv canv2 canv3 fgcolor curview
+    global linespc canv canv2 fgcolor curview
     global cmitlisted commitinfo rowidlist parentlist
     global rowtextx idpos idtags idheads idotherrefs
     global linehtag linentag linedtag selectedline
@@ -6399,8 +6482,9 @@ proc drawcmittext {id row col} {
     $canv bind $linehtag($id) $ctxbut "rowmenu %X %Y $id"
     set linentag($id) [$canv2 create text 3 $y -anchor w -fill $fgcolor \
                            -text $name -font $nfont -tags text]
-    set linedtag($id) [$canv3 create text 3 $y -anchor w -fill $fgcolor \
+    set linedtag($id) [$canv2 create text 3 $y -anchor e -fill $fgcolor \
                            -text $date -font mainfont -tags text]
+    layout_author_date $id [winfo width $canv2]
     if {$selectedline == $row} {
         make_secsel $id
     }
@@ -6417,7 +6501,7 @@ proc drawcmittext {id row col} {
 proc drawcmitrow {row} {
     global displayorder rowidlist nrows_drawn
     global iddrawn markingmatches
-    global commitinfo numcommits
+    global commitinfo numcommits canv2 selectedline
     global filehighlight fhighlights findpattern nhighlights
     global hlview vhighlights
     global highlight_related rhighlights
@@ -6450,6 +6534,11 @@ proc drawcmitrow {row} {
         drawcmittext $id $row $col
         set iddrawn($id) 1
         incr nrows_drawn
+    } else {
+        layout_author_date $id [winfo width $canv2]
+        if {$selectedline == $row} {
+            make_secsel $id
+        }
     }
     if {$markingmatches} {
         markrowmatches $row $id
@@ -6612,7 +6701,7 @@ proc drawvisible {} {
 proc clear_display {} {
     global iddrawn linesegs need_redisplay nrows_drawn
     global vhighlights fhighlights nhighlights rhighlights
-    global linehtag linentag linedtag boldids boldnameids
+    global linehtag linentag linedtag authorchars boldids boldnameids
 
     allcanvs delete all
     unset -nocomplain iddrawn
@@ -6620,6 +6709,7 @@ proc clear_display {} {
     unset -nocomplain linehtag
     unset -nocomplain linentag
     unset -nocomplain linedtag
+    unset -nocomplain authorchars
     set boldids {}
     set boldnameids {}
     unset -nocomplain vhighlights
@@ -7153,21 +7243,36 @@ proc findselectline {l} {
 }
 
 # mark the bits of a headline or author that match a find string
-proc markmatches {canv l str tag matches font row} {
+proc markmatches {canv l str tag matches font row {visiblechars {}}} {
     global selectedline foundbgcolor
 
     set bbox [$canv bbox $tag]
+    if {$bbox eq {}} return
     set x0 [lindex $bbox 0]
+    set xmax [lindex $bbox 2]
+    if {$visiblechars ne {}} {
+        if {$visiblechars == 0} return
+        set visible [string range $str 0 [expr {$visiblechars - 1}]]
+        set xmax [expr {$x0 + [font measure $font $visible]}]
+    }
     set y0 [lindex $bbox 1]
     set y1 [lindex $bbox 3]
     foreach match $matches {
         set start [lindex $match 0]
         set end [lindex $match 1]
         if {$start > $end} continue
+        if {$visiblechars ne {}} {
+            if {$start >= $visiblechars} continue
+            if {$end >= $visiblechars} {
+                set end [expr {$visiblechars - 1}]
+            }
+        }
         set xoff [font measure $font [string range $str 0 [expr {$start-1}]]]
         set xlen [font measure $font [string range $str 0 [expr {$end}]]]
-        set t [$canv create rect [expr {$x0+$xoff}] $y0 \
-                   [expr {$x0+$xlen+2}] $y1 \
+        set matchx0 [expr {$x0 + $xoff}]
+        if {$matchx0 >= $xmax} continue
+        set matchx1 [expr {min($x0 + $xlen + 2, $xmax)}]
+        set t [$canv create rect $matchx0 $y0 $matchx1 $y1 \
                    -outline {} -tags [list match$l matches] -fill $foundbgcolor]
         $canv lower $t
         if {$row == $selectedline} {
@@ -7470,7 +7575,7 @@ proc dispnexttag {} {
 }
 
 proc make_secsel {id} {
-    global linehtag linentag linedtag canv canv2 canv3
+    global linehtag linentag linedtag canv canv2
 
     if {![info exists linehtag($id)]} return
     $canv delete secsel
@@ -7478,13 +7583,10 @@ proc make_secsel {id} {
                -tags secsel -fill [$canv cget -selectbackground]]
     $canv lower $t
     $canv2 delete secsel
-    set t [eval $canv2 create rect [$canv2 bbox $linentag($id)] -outline {{}} \
+    set t [eval $canv2 create rect \
+               [$canv2 bbox $linentag($id) $linedtag($id)] -outline {{}} \
                -tags secsel -fill [$canv2 cget -selectbackground]]
     $canv2 lower $t
-    $canv3 delete secsel
-    set t [eval $canv3 create rect [$canv3 bbox $linedtag($id)] -outline {{}} \
-               -tags secsel -fill [$canv3 cget -selectbackground]]
-    $canv3 lower $t
 }
 
 proc make_idmark {id} {
