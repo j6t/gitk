@@ -1,0 +1,1116 @@
+# Afrikaans translation of gitk.
+# Copyright (C) 2005-2016 Paul Mackerras.
+# This file is distributed under the same license as the gitk package.
+#
+# Stéfan Driaan Turvey <stefanturvey1912@gmail.com>, 2026.
+msgid ""
+msgstr ""
+"Project-Id-Version: Gitk\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2026-09-04 17:08+0200\n"
+"PO-Revision-Date: 2026-09-24 06:58+0200\n"
+"Last-Translator: Stéfan Driaan Turvey <stefanturvey1912@gmail.com>\n"
+"Language-Team: Stéfan Driaan Turvey <stefanturvey1912@gmail.com>\n"
+"Language: af\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+
+msgid "Couldn't get list of unmerged files:"
+msgstr "Kon nie die lys van nie-saamgesmelte lêers kry nie:"
+
+msgid "Color words"
+msgstr "Woorde in kleur"
+
+msgid "Markup words"
+msgstr "Woorde met opmaak"
+
+msgid "Error parsing revisions:"
+msgstr "Fout met ontleding van hersienings:"
+
+msgid "Error executing --argscmd command:"
+msgstr "Fout met uitvoering van --argscmd-opdrag:"
+
+msgid "No files selected: --merge specified but no files are unmerged."
+msgstr ""
+"Geen lêers gekies nie: --merge is gespesifiseer, maar geen lêers is nie "
+"saamgesmelt nie."
+
+msgid ""
+"No files selected: --merge specified but no unmerged files are within file "
+"limit."
+msgstr ""
+"Geen lêers gekies nie: --merge is gespesifiseer, maar geen nie-saamgesmelte "
+"lêers is binne die lêerbeperking nie."
+
+msgid "Error executing git log:"
+msgstr "Fout met uitvoering van git log:"
+
+msgid "Reading"
+msgstr "Lees"
+
+msgid "Reading commits..."
+msgstr "Lees vasleggings..."
+
+msgid "No commits selected"
+msgstr "Geen vasleggings gekies nie"
+
+msgid "Command line"
+msgstr "Opdragreël"
+
+msgid "Can't parse git log output:"
+msgstr "Kan nie git log-afvoer ontleed nie:"
+
+msgid "No commit information available"
+msgstr "Geen vasleggingsinligting beskikbaar nie"
+
+msgid "OK"
+msgstr "OK"
+
+msgid "Cancel"
+msgstr "Kanselleer"
+
+msgid "&Update"
+msgstr "&Bywerk"
+
+msgid "&Reload"
+msgstr "&Herlaai"
+
+msgid "Reread re&ferences"
+msgstr "Herlees &verwysings"
+
+msgid "&List references"
+msgstr "&Lys verwysings"
+
+msgid "Start git &gui"
+msgstr "Begin git &gui"
+
+msgid "&Quit"
+msgstr "&Verlaat"
+
+msgid "&File"
+msgstr "&Lêer"
+
+msgid "&Preferences"
+msgstr "&Voorkeure"
+
+msgid "&Edit"
+msgstr "R&edigeer"
+
+msgid "&New view..."
+msgstr "&Nuwe aansig..."
+
+msgid "&Edit view..."
+msgstr "R&edigeer aansig..."
+
+msgid "&Delete view"
+msgstr "&Skrap aansig"
+
+msgid "&All files"
+msgstr "&Alle lêers"
+
+msgid "&View"
+msgstr "&Aansig"
+
+msgid "&About gitk"
+msgstr "&Oor gitk"
+
+msgid "&Key bindings"
+msgstr "&Sleutelbindings"
+
+msgid "&Help"
+msgstr "&Hulp"
+
+msgid "Commit ID:"
+msgstr "Vasleggings-ID:"
+
+msgid "Row"
+msgstr "Ry"
+
+msgid "Find"
+msgstr "Vind"
+
+msgid "commit"
+msgstr "vaslegging"
+
+msgid "containing:"
+msgstr "wat bevat:"
+
+msgid "touching paths:"
+msgstr "wat paaie raak:"
+
+msgid "adding/removing string:"
+msgstr "wat string byvoeg/verwyder:"
+
+msgid "changing lines matching:"
+msgstr "wat reëls verander wat ooreenstem met:"
+
+msgid "Exact"
+msgstr "Presies"
+
+msgid "IgnCase"
+msgstr "Geen hoof/klein"
+
+msgid "Regexp"
+msgstr "Regex"
+
+msgid "All fields"
+msgstr "Alle velde"
+
+msgid "Headline"
+msgstr "Opskrif"
+
+msgid "Comments"
+msgstr "Kommentaar"
+
+msgid "Author"
+msgstr "Outeur"
+
+msgid "Committer"
+msgstr "Vaslegger"
+
+msgid "Search"
+msgstr "Soek"
+
+msgid "Diff"
+msgstr "Verskil"
+
+msgid "Old version"
+msgstr "Ou weergawe"
+
+msgid "New version"
+msgstr "Nuwe weergawe"
+
+msgid "Lines of context"
+msgstr "Konteksreëls"
+
+msgid "Ignore space change"
+msgstr "Ignoreer spasieverandering"
+
+msgid "Line diff"
+msgstr "Reëlverskil"
+
+msgid "Patch"
+msgstr "Lap"
+
+msgid "Tree"
+msgstr "Boom"
+
+msgid "Unknown windowing system, cannot bind mouse"
+msgstr "Onbekende vensterstelsel, kan nie muis bind nie"
+
+msgid "Diff this -> selected"
+msgstr "Verskil hierdie -> gekose"
+
+msgid "Diff selected -> this"
+msgstr "Verskil gekose -> hierdie"
+
+msgid "Make patch"
+msgstr "Maak lap"
+
+msgid "Create tag"
+msgstr "Skep etiket"
+
+msgid "Copy commit reference"
+msgstr "Kopieer vasleggingsverwysing"
+
+msgid "Write commit to file"
+msgstr "Skryf vaslegging na lêer"
+
+msgid "Create new branch"
+msgstr "Skep nuwe tak"
+
+msgid "Cherry-pick this commit"
+msgstr "Kersiepluk hierdie vaslegging"
+
+msgid "Reset HEAD branch to here"
+msgstr "Stel HEAD-tak terug na hier"
+
+msgid "Mark this commit"
+msgstr "Merk hierdie vaslegging"
+
+msgid "Return to mark"
+msgstr "Keer terug na merk"
+
+msgid "Find descendant of this and mark"
+msgstr "Vind afstammeling hiervan en merk"
+
+msgid "Compare with marked commit"
+msgstr "Vergelyk met gemerkte vaslegging"
+
+msgid "Diff this -> marked commit"
+msgstr "Verskil hierdie -> gemerkte vaslegging"
+
+msgid "Diff marked commit -> this"
+msgstr "Verskil gemerkte vaslegging -> hierdie"
+
+msgid "Revert this commit"
+msgstr "Keer hierdie vaslegging om"
+
+msgid "Check out this branch"
+msgstr "Check hierdie tak uit"
+
+msgid "Rename this branch"
+msgstr "Hernoem hierdie tak"
+
+msgid "Remove this branch"
+msgstr "Verwyder hierdie tak"
+
+msgid "Copy branch name"
+msgstr "Kopieer taknaam"
+
+msgid "Highlight this too"
+msgstr "Lig dit ook uit"
+
+msgid "Highlight this only"
+msgstr "Lig slegs dit uit"
+
+msgid "External diff"
+msgstr "Eksterne verskil"
+
+msgid "Blame parent commit"
+msgstr "Blameer ouervaslegging"
+
+msgid "Copy path"
+msgstr "Kopieer pad"
+
+msgid "Show origin of this line"
+msgstr "Wys oorsprong van hierdie reël"
+
+msgid "Run git gui blame on this line"
+msgstr "Voer git gui blame op hierdie reël uit"
+
+msgid "About gitk"
+msgstr "Oor gitk"
+
+msgid ""
+"\n"
+"Gitk - a commit viewer for git\n"
+"\n"
+"Copyright © 2005-2016 Paul Mackerras\n"
+"\n"
+"Use and redistribute under the terms of the GNU General Public License"
+msgstr ""
+"\n"
+"Gitk - 'n vasleggingskyker vir git\n"
+"\n"
+"Kopiereg © 2005-2016 Paul Mackerras\n"
+"\n"
+"Gebruik en herversprei onder die voorwaardes van die GNU General Public "
+"License"
+
+msgid "Close"
+msgstr "Sluit"
+
+msgid "Gitk key bindings"
+msgstr "Gitk-sleutelbindings"
+
+msgid "Gitk key bindings:"
+msgstr "Gitk-sleutelbindings:"
+
+#, tcl-format
+msgid "<%s-Q>\t\tQuit"
+msgstr "<%s-Q>\t\tVerlaat"
+
+#, tcl-format
+msgid "<%s-W>\t\tClose window"
+msgstr "<%s-W>\t\tSluit venster"
+
+msgid "<Home>\t\tMove to first commit"
+msgstr "<Home>\t\tGaan na eerste vaslegging"
+
+msgid "<End>\t\tMove to last commit"
+msgstr "<End>\t\tGaan na laaste vaslegging"
+
+msgid "<Up>, p, k\tMove up one commit"
+msgstr "<Up>, p, k\tGaan een vaslegging op"
+
+msgid "<Down>, n, j\tMove down one commit"
+msgstr "<Down>, n, j\tGaan een vaslegging af"
+
+msgid "<Left>, z, h\tGo back in history list"
+msgstr "<Left>, z, h\tGaan terug in geskiedenislys"
+
+msgid "<Right>, x, l\tGo forward in history list"
+msgstr "<Right>, x, l\tGaan vorentoe in geskiedenislys"
+
+#, tcl-format
+msgid "<%s-n>\tGo to n-th parent of current commit in history list"
+msgstr "<%s-n>\tGaan na n-de ouer van huidige vaslegging in geskiedenislys"
+
+msgid "<PageUp>\tMove up one page in commit list"
+msgstr "<PageUp>\tGaan een bladsy op in vasleggingslys"
+
+msgid "<PageDown>\tMove down one page in commit list"
+msgstr "<PageDown>\tGaan een bladsy af in vasleggingslys"
+
+#, tcl-format
+msgid "<%s-Home>\tScroll to top of commit list"
+msgstr "<%s-Home>\tRol na bokant van vasleggingslys"
+
+#, tcl-format
+msgid "<%s-End>\tScroll to bottom of commit list"
+msgstr "<%s-End>\tRol na onderkant van vasleggingslys"
+
+#, tcl-format
+msgid "<%s-Up>\tScroll commit list up one line"
+msgstr "<%s-Up>\tRol vasleggingslys een reël op"
+
+#, tcl-format
+msgid "<%s-Down>\tScroll commit list down one line"
+msgstr "<%s-Down>\tRol vasleggingslys een reël af"
+
+#, tcl-format
+msgid "<%s-PageUp>\tScroll commit list up one page"
+msgstr "<%s-PageUp>\tRol vasleggingslys een bladsy op"
+
+#, tcl-format
+msgid "<%s-PageDown>\tScroll commit list down one page"
+msgstr "<%s-PageDown>\tRol vasleggingslys een bladsy af"
+
+msgid "<Shift-Up>\tFind backwards (upwards, later commits)"
+msgstr "<Shift-Up>\tVind terugwaarts (opwaarts, latere vasleggings)"
+
+msgid "<Shift-Down>\tFind forwards (downwards, earlier commits)"
+msgstr "<Shift-Down>\tVind voorwaarts (afwaarts, vroeëre vasleggings)"
+
+msgid "<Delete>, b\tScroll diff view up one page"
+msgstr "<Delete>, b\tRol verskilaansig een bladsy op"
+
+msgid "<Backspace>\tScroll diff view up one page"
+msgstr "<Backspace>\tRol verskilaansig een bladsy op"
+
+msgid "<Space>\t\tScroll diff view down one page"
+msgstr "<Space>\t\tRol verskilaansig een bladsy af"
+
+msgid "u\t\tScroll diff view up 18 lines"
+msgstr "u\t\tRol verskilaansig 18 reëls op"
+
+msgid "d\t\tScroll diff view down 18 lines"
+msgstr "d\t\tRol verskilaansig 18 reëls af"
+
+#, tcl-format
+msgid "<%s-F>\t\tFind"
+msgstr "<%s-F>\t\tVind"
+
+#, tcl-format
+msgid "<%s-G>\t\tMove to next find hit"
+msgstr "<%s-G>\t\tGaan na volgende soektreffer"
+
+msgid "<Return>\tMove to next find hit"
+msgstr "<Return>\tGaan na volgende soektreffer"
+
+msgid "g\t\tGo to commit"
+msgstr "g\t\tGaan na vaslegging"
+
+msgid "/\t\tFocus the search box"
+msgstr "/\t\tFokus op die soekveld"
+
+msgid "?\t\tMove to previous find hit"
+msgstr "?\t\tGaan na vorige soektreffer"
+
+msgid "f\t\tScroll diff view to next file"
+msgstr "f\t\tRol verskilaansig na volgende lêer"
+
+#, tcl-format
+msgid "<%s-S>\t\tSearch for next hit in diff view"
+msgstr "<%s-S>\t\tSoek na volgende treffer in verskilaansig"
+
+#, tcl-format
+msgid "<%s-R>\t\tSearch for previous hit in diff view"
+msgstr "<%s-R>\t\tSoek na vorige treffer in verskilaansig"
+
+#, tcl-format
+msgid "<%s-KP+>\tIncrease font size"
+msgstr "<%s-KP+>\tVergroot lettergrootte"
+
+#, tcl-format
+msgid "<%s-plus>\tIncrease font size"
+msgstr "<%s-plus>\tVergroot lettergrootte"
+
+#, tcl-format
+msgid "<%s-KP->\tDecrease font size"
+msgstr "<%s-KP->\tVerklein lettergrootte"
+
+#, tcl-format
+msgid "<%s-minus>\tDecrease font size"
+msgstr "<%s-minus>\tVerklein lettergrootte"
+
+msgid "<F5>\t\tUpdate"
+msgstr "<F5>\t\tBywerk"
+
+#, tcl-format
+msgid "Error creating temporary directory %s:"
+msgstr "Fout met skep van tydelike gids %s:"
+
+#, tcl-format
+msgid "Error getting \"%s\" from %s:"
+msgstr "Fout met verkryging van \"%s\" vanaf %s:"
+
+msgid "command failed:"
+msgstr "opdrag het misluk:"
+
+msgid "No such commit"
+msgstr "Geen sodanige vaslegging nie"
+
+msgid "git gui blame: command failed:"
+msgstr "git gui blame: opdrag het misluk:"
+
+#, tcl-format
+msgid "Couldn't read merge head: %s"
+msgstr "Kon nie saamsmelt-HEAD lees nie: %s"
+
+#, tcl-format
+msgid "Error reading index: %s"
+msgstr "Fout met lees van indeks: %s"
+
+#, tcl-format
+msgid "Couldn't start git blame: %s"
+msgstr "Kon nie git blame begin nie: %s"
+
+msgid "Searching"
+msgstr "Soek"
+
+#, tcl-format
+msgid "Error running git blame: %s"
+msgstr "Fout met uitvoering van git blame: %s"
+
+#, tcl-format
+msgid "That line comes from commit %s,  which is not in this view"
+msgstr "Daardie reël kom van vaslegging %s,  wat nie in hierdie aansig is nie"
+
+msgid "External diff viewer failed:"
+msgstr "Eksterne verskilkyker het misluk:"
+
+msgid "All files"
+msgstr "Alle lêers"
+
+msgid "View"
+msgstr "Aansig"
+
+msgid "Gitk view definition"
+msgstr "Gitk-aansigdefinisie"
+
+msgid "Remember this view"
+msgstr "Onthou hierdie aansig"
+
+msgid "References (space separated list):"
+msgstr "Verwysings (spasie-geskeide lys):"
+
+msgid "Branches & tags:"
+msgstr "Takke & etikette:"
+
+msgid "All refs"
+msgstr "Alle verwysings"
+
+msgid "All (local) branches"
+msgstr "Alle (plaaslike) takke"
+
+msgid "All tags"
+msgstr "Alle etikette"
+
+msgid "All remote-tracking branches"
+msgstr "Alle afgeleë volgtakke"
+
+msgid "Commit Info (regular expressions):"
+msgstr "Vasleggingsinligting (gewone uitdrukkings):"
+
+msgid "Author:"
+msgstr "Outeur:"
+
+msgid "Committer:"
+msgstr "Vaslegger:"
+
+msgid "Commit Message:"
+msgstr "Vasleggingsboodskap:"
+
+msgid "Matches all Commit Info criteria"
+msgstr "Stem ooreen met alle vasleggingsinligting-kriteria"
+
+msgid "Matches no Commit Info criteria"
+msgstr "Stem met geen vasleggingsinligting-kriteria ooreen nie"
+
+msgid "Changes to Files:"
+msgstr "Veranderinge aan lêers:"
+
+msgid "Fixed String"
+msgstr "Vaste string"
+
+msgid "Regular Expression"
+msgstr "Gewone uitdrukking"
+
+msgid "Search string:"
+msgstr "Soekstring:"
+
+msgid ""
+"Commit Dates (\"2 weeks ago\", \"2009-03-17 15:27:38\", \"March 17, 2009 "
+"15:27:38\"):"
+msgstr ""
+"Vasleggingsdatums (\"2 weeks ago\", \"2009-03-17 15:27:38\", \"March 17, "
+"2009 15:27:38\"):"
+
+msgid "Since:"
+msgstr "Sedert:"
+
+msgid "Until:"
+msgstr "Tot:"
+
+msgid "Limit and/or skip a number of revisions (positive integer):"
+msgstr "Beperk en/of slaan 'n aantal hersienings oor (positiewe heelgetal):"
+
+msgid "Number to show:"
+msgstr "Aantal om te wys:"
+
+msgid "Number to skip:"
+msgstr "Aantal om oor te slaan:"
+
+msgid "Miscellaneous options:"
+msgstr "Diverse opsies:"
+
+msgid "Strictly sort by date"
+msgstr "Sorteer streng volgens datum"
+
+msgid "Mark branch sides"
+msgstr "Merk takkante"
+
+msgid "Limit to first parent"
+msgstr "Beperk tot eerste ouer"
+
+msgid "Simple history"
+msgstr "Eenvoudige geskiedenis"
+
+msgid "Additional arguments to git log:"
+msgstr "Bykomende argumente vir git log:"
+
+msgid "Enter files and directories to include, one per line:"
+msgstr "Voer lêers en gidse in om in te sluit, een per reël:"
+
+msgid "Command to generate more commits to include:"
+msgstr "Opdrag om meer vasleggings te genereer om in te sluit:"
+
+msgid "Gitk: edit view"
+msgstr "Gitk: redigeer aansig"
+
+msgid "-- criteria for selecting revisions"
+msgstr "-- kriteria vir die keuse van hersienings"
+
+msgid "View Name"
+msgstr "Aansignaam"
+
+msgid "Apply (F5)"
+msgstr "Pas toe (F5)"
+
+msgid "Error in commit selection arguments:"
+msgstr "Fout in vasleggingskeuse-argumente:"
+
+msgid "None"
+msgstr "Geen"
+
+msgid "Descendant"
+msgstr "Afstammeling"
+
+msgid "Not descendant"
+msgstr "Nie afstammeling nie"
+
+msgid "Ancestor"
+msgstr "Voorouer"
+
+msgid "Not ancestor"
+msgstr "Nie voorouer nie"
+
+msgid "Local changes checked in to index but not committed"
+msgstr "Plaaslike veranderinge in indeks geplaas, maar nie vasgelê nie"
+
+msgid "Local uncommitted changes, not checked in to index"
+msgstr "Plaaslike nie-vasgelegde veranderinge, nie in indeks geplaas nie"
+
+msgid "Error starting web browser:"
+msgstr "Fout met begin van webblaaier:"
+
+msgid "and many more"
+msgstr "en baie meer"
+
+msgid "many"
+msgstr "baie"
+
+msgid "Tags:"
+msgstr "Etikette:"
+
+msgid "Parent"
+msgstr "Ouer"
+
+msgid "Child"
+msgstr "Kind"
+
+msgid "Branch"
+msgstr "Tak"
+
+msgid "Follows"
+msgstr "Volg op"
+
+msgid "Precedes"
+msgstr "Gaan vooraf"
+
+#, tcl-format
+msgid "Error getting diffs: %s"
+msgstr "Fout met verkryging van verskille: %s"
+
+msgid "Goto:"
+msgstr "Gaan na:"
+
+#, tcl-format
+msgid "Short commit ID %s is ambiguous"
+msgstr "Kort vasleggings-ID %s is dubbelsinnig"
+
+#, tcl-format
+msgid "Revision %s is not known"
+msgstr "Hersiening %s is onbekend"
+
+#, tcl-format
+msgid "Commit ID %s is not known"
+msgstr "Vasleggings-ID %s is onbekend"
+
+#, tcl-format
+msgid "Revision %s is not in the current view"
+msgstr "Hersiening %s is nie in die huidige aansig nie"
+
+msgid "Date"
+msgstr "Datum"
+
+msgid "Children"
+msgstr "Kinders"
+
+#, tcl-format
+msgid "Reset %s branch to here"
+msgstr "Stel %s-tak terug na hier"
+
+msgid "Detached head: can't reset"
+msgstr "Ontkoppelde HEAD: kan nie terugstel nie"
+
+msgid "Skipping merge commit "
+msgstr "Slaan saamsmeltvaslegging oor "
+
+msgid "Error getting patch ID for "
+msgstr "Fout met verkryging van lap-ID vir "
+
+msgid " - stopping\n"
+msgstr " - stop\n"
+
+msgid "Commit "
+msgstr "Vaslegging "
+
+msgid ""
+" is the same patch as\n"
+"       "
+msgstr ""
+" is dieselfde lap as\n"
+"       "
+
+msgid ""
+" differs from\n"
+"       "
+msgstr ""
+" verskil van\n"
+"       "
+
+msgid ""
+"Diff of commits:\n"
+"\n"
+msgstr ""
+"Verskil van vasleggings:\n"
+"\n"
+
+#, tcl-format
+msgid " has %s children - stopping\n"
+msgstr " het %s kinders - stop\n"
+
+#, tcl-format
+msgid "Error writing commit to file: %s"
+msgstr "Fout met skryf van vaslegging na lêer: %s"
+
+#, tcl-format
+msgid "Error diffing commits: %s"
+msgstr "Fout met vergelyking van vasleggings: %s"
+
+msgid "Top"
+msgstr "Bo"
+
+msgid "From"
+msgstr "Van"
+
+msgid "To"
+msgstr "Na"
+
+msgid "Generate patch"
+msgstr "Genereer lap"
+
+msgid "From:"
+msgstr "Van:"
+
+msgid "To:"
+msgstr "Na:"
+
+msgid "Reverse"
+msgstr "Omgekeerd"
+
+msgid "Output file:"
+msgstr "Afvoerlêer:"
+
+msgid "Generate"
+msgstr "Genereer"
+
+msgid "Error creating patch:"
+msgstr "Fout met skep van lap:"
+
+msgid "ID:"
+msgstr "ID:"
+
+msgid "Tag name:"
+msgstr "Etiketnaam:"
+
+msgid "Tag message is optional"
+msgstr "Etiketboodskap is opsioneel"
+
+msgid "Tag message:"
+msgstr "Etiketboodskap:"
+
+msgid "Create"
+msgstr "Skep"
+
+msgid "No tag name specified"
+msgstr "Geen etiketnaam gespesifiseer nie"
+
+#, tcl-format
+msgid "Tag \"%s\" already exists"
+msgstr "Etiket \"%s\" bestaan reeds"
+
+msgid "Error creating tag:"
+msgstr "Fout met skep van etiket:"
+
+msgid "Command:"
+msgstr "Opdrag:"
+
+msgid "Write"
+msgstr "Skryf"
+
+msgid "Error writing commit:"
+msgstr "Fout met skryf van vaslegging:"
+
+msgid "Create branch"
+msgstr "Skep tak"
+
+#, tcl-format
+msgid "Rename branch %s"
+msgstr "Hernoem tak %s"
+
+msgid "Rename"
+msgstr "Hernoem"
+
+msgid "Name:"
+msgstr "Naam:"
+
+msgid "Please specify a name for the new branch"
+msgstr "Spesifiseer asseblief 'n naam vir die nuwe tak"
+
+#, tcl-format
+msgid "Branch '%s' already exists. Overwrite?"
+msgstr "Tak '%s' bestaan reeds. Oorskryf?"
+
+msgid "Please specify a new name for the branch"
+msgstr "Spesifiseer asseblief 'n nuwe naam vir die tak"
+
+#, tcl-format
+msgid "Commit %s is already included in branch %s -- really re-apply it?"
+msgstr "Vaslegging %s is reeds by tak %s ingesluit -- regtig weer toepas?"
+
+msgid "Cherry-picking"
+msgstr "Kersiepluk"
+
+#, tcl-format
+msgid ""
+"Cherry-pick failed because of local changes to file '%s'.\n"
+"Please commit, reset or stash your changes and try again."
+msgstr ""
+"Kersiepluk het misluk weens plaaslike veranderinge aan lêer '%s'.\n"
+"Lê asseblief u veranderinge vas, stel dit terug of bêre dit weg en probeer "
+"weer."
+
+msgid ""
+"Cherry-pick failed because of merge conflict.\n"
+"Do you wish to run git citool to resolve it?"
+msgstr ""
+"Kersiepluk het misluk weens 'n saamsmeltkonflik.\n"
+"Wil u git citool uitvoer om dit op te los?"
+
+msgid "No changes committed"
+msgstr "Geen veranderinge vasgelê nie"
+
+#, tcl-format
+msgid "Commit %s is not included in branch %s -- really revert it?"
+msgstr "Vaslegging %s is nie by tak %s ingesluit nie -- regtig omkeer?"
+
+msgid "Reverting"
+msgstr "Keer om"
+
+#, tcl-format
+msgid ""
+"Revert failed because of local changes to the following files:%s Please "
+"commit, reset or stash  your changes and try again."
+msgstr ""
+"Omkering het misluk weens plaaslike veranderinge aan die volgende lêers:%s "
+"Lê asseblief u veranderinge vas, stel dit terug of bêre dit weg en probeer "
+"weer."
+
+msgid ""
+"Revert failed because of merge conflict.\n"
+" Do you wish to run git citool to resolve it?"
+msgstr ""
+"Omkering het misluk weens 'n saamsmeltkonflik.\n"
+" Wil u git citool uitvoer om dit op te los?"
+
+msgid "Confirm reset"
+msgstr "Bevestig terugstelling"
+
+#, tcl-format
+msgid "Reset branch %s to %s?"
+msgstr "Stel tak %s terug na %s?"
+
+msgid "Reset type:"
+msgstr "Terugsteltipe:"
+
+msgid "Soft: Leave working tree and index untouched"
+msgstr "Sag: Laat werkboom en indeks onaangeraak"
+
+msgid "Mixed: Leave working tree untouched, reset index"
+msgstr "Gemeng: Laat werkboom onaangeraak, stel indeks terug"
+
+msgid ""
+"Hard: Reset working tree and index\n"
+"(discard ALL local changes)"
+msgstr ""
+"Hard: Stel werkboom en indeks terug\n"
+"(verwerp ALLE plaaslike veranderinge)"
+
+msgid "Resetting"
+msgstr "Stel terug"
+
+#, tcl-format
+msgid "A local branch named %s exists already"
+msgstr "'n Plaaslike tak genaamd %s bestaan reeds"
+
+msgid "Checking out"
+msgstr "Check uit"
+
+msgid "Cannot delete the currently checked-out branch"
+msgstr "Kan nie die tak wat tans uitgecheck is skrap nie"
+
+#, tcl-format
+msgid ""
+"The commits on branch %s aren't on any other branch.\n"
+"Really delete branch %s?"
+msgstr ""
+"Die vasleggings op tak %s is nie op enige ander tak nie.\n"
+"Tak %s regtig skrap?"
+
+#, tcl-format
+msgid "Tags and heads: %s"
+msgstr "Etikette en koppe: %s"
+
+msgid "Filter"
+msgstr "Filter"
+
+msgid "Sort refs by type"
+msgstr "Sorteer verwysings volgens tipe"
+
+msgid ""
+"Error reading commit topology information; branch and preceding/following "
+"tag information will be incomplete."
+msgstr ""
+"Fout met lees van vasleggingstopologie-inligting; tak- en voorafgaande/"
+"opvolgende etiketinligting sal onvolledig wees."
+
+msgid "Tag"
+msgstr "Etiket"
+
+msgid "Id"
+msgstr "ID"
+
+msgid "Commit list display options"
+msgstr "Vertoonopsies vir vasleggingslys"
+
+msgid "Maximum graph width (lines)"
+msgstr "Maksimum grafiekwydte (reëls)"
+
+#, no-tcl-format
+msgid "Maximum graph width (% of pane)"
+msgstr "Maksimum grafiekwydte (% van paneel)"
+
+msgid "Show local changes"
+msgstr "Wys plaaslike veranderinge"
+
+msgid "Hide remote refs"
+msgstr "Versteek afgeleë verwysings"
+
+msgid "Refs to hide (space-separated globs)"
+msgstr "Verwysings om te versteek (spasie-geskeide globs)"
+
+msgid "Copy commit ID to clipboard"
+msgstr "Kopieer vasleggings-ID na knipbord"
+
+msgid "Copy commit ID to X11 selection"
+msgstr "Kopieer vasleggings-ID na X11-keuse"
+
+msgid "Length of commit ID to copy"
+msgstr "Lengte van vasleggings-ID om te kopieer"
+
+msgid "Wheel scrolling multiplier"
+msgstr "Vermenigvuldiger vir wielrol"
+
+msgid "Diff display options"
+msgstr "Vertoonopsies vir verskil"
+
+msgid "Tab spacing"
+msgstr "Tab-spasiëring"
+
+msgid "Wrap comment text"
+msgstr "Vou kommentaarteks"
+
+msgid "Wrap other text"
+msgstr "Vou ander teks"
+
+msgid "Display nearby tags/heads"
+msgstr "Vertoon nabygeleë etikette/koppe"
+
+msgid "Maximum # tags/heads to show"
+msgstr "Maksimum # etikette/koppe om te wys"
+
+msgid "Limit diffs to listed paths"
+msgstr "Beperk verskille tot gelyste paaie"
+
+msgid "Support per-file encodings"
+msgstr "Ondersteun enkoderings per lêer"
+
+msgid "External diff tool"
+msgstr "Eksterne verskilhulpmiddel"
+
+msgid "Choose..."
+msgstr "Kies..."
+
+msgid "Web browser"
+msgstr "Webblaaier"
+
+msgid "Themes - change requires restart"
+msgstr "Temas - verandering vereis herbegin"
+
+msgid "Theme to use after restart"
+msgstr "Tema om na herbegin te gebruik"
+
+msgid "Theme definition file"
+msgstr "Temadefinisielêer"
+
+msgid "The theme definition file may affect all themes."
+msgstr "Die temadefinisielêer kan alle temas beïnvloed."
+
+msgid "Apply theme"
+msgstr "Pas tema toe"
+
+msgid "Colors: press to choose"
+msgstr "Kleure: druk om te kies"
+
+msgid "Background"
+msgstr "Agtergrond"
+
+msgid "choose background color"
+msgstr "kies agtergrondkleur"
+
+msgid "Main text"
+msgstr "Hoofteks"
+
+msgid "choose main text color"
+msgstr "kies hooftekskleur"
+
+msgid "Selected text background"
+msgstr "Agtergrond van gekose teks"
+
+msgid "choose background color of selected text"
+msgstr "kies agtergrondkleur van gekose teks"
+
+msgid "Link text"
+msgstr "Skakelteks"
+
+msgid "choose color of link text"
+msgstr "kies kleur van skakelteks"
+
+msgid "Old line text"
+msgstr "Teks van ou reëls"
+
+msgid "choose text color of old lines"
+msgstr "kies tekskleur van ou reëls"
+
+msgid "Old line background"
+msgstr "Agtergrond van ou reëls"
+
+msgid "choose background color of old lines"
+msgstr "kies agtergrondkleur van ou reëls"
+
+msgid "New line text"
+msgstr "Teks van nuwe reëls"
+
+msgid "choose text color of new lines"
+msgstr "kies tekskleur van nuwe reëls"
+
+msgid "New line background"
+msgstr "Agtergrond van nuwe reëls"
+
+msgid "choose background color of new lines"
+msgstr "kies agtergrondkleur van nuwe reëls"
+
+msgid "Hunk header text"
+msgstr "Teks van brokopskrif"
+
+msgid "choose text color of hunk headers"
+msgstr "kies tekskleur van brokopskrifte"
+
+msgid "Marked line background"
+msgstr "Agtergrond van gemerkte reël"
+
+msgid "choose background color of marked lines"
+msgstr "kies agtergrondkleur van gemerkte reëls"
+
+msgid "Fonts: press to choose"
+msgstr "Lettertipes: druk om te kies"
+
+msgid "Main font"
+msgstr "Hooflettertipe"
+
+msgid "Diff display font"
+msgstr "Lettertipe vir verskilvertoning"
+
+msgid "User interface font"
+msgstr "Gebruikerskoppelvlak-lettertipe"
+
+msgid "Gitk preferences"
+msgstr "Gitk-voorkeure"
+
+msgid "General"
+msgstr "Algemeen"
+
+msgid "Colors"
+msgstr "Kleure"
+
+msgid "Fonts"
+msgstr "Lettertipes"
+
+msgid "Gitk: select theme definition"
+msgstr "Gitk: kies temadefinisie"
+
+msgid "Cannot find a git repository here."
+msgstr "Kan nie hier 'n git-bewaarplek vind nie."
+
+#, tcl-format
+msgid "Ambiguous argument '%s': both revision and filename"
+msgstr "Dubbelsinnige argument '%s': beide hersiening en lêernaam"
+
+msgid "Bad arguments to gitk:"
+msgstr "Ongeldige argumente vir gitk:"
