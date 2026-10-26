@@ -2859,6 +2859,7 @@ proc makewindow {} {
         {mc "Write commit to file" command writecommit}
         {mc "Create new branch" command mkbranch}
         {mc "Cherry-pick this commit" command cherrypick}
+        {mc "Cherry-pick with cross-reference" command {cherrypick -x}}
         {mc "Reset HEAD branch to here" command resethead}
         {mc "Mark this commit" command markhere}
         {mc "Return to mark" command gotomark}
@@ -9167,13 +9168,13 @@ proc rowmenu {x y id} {
     if {$id ne $nullid && $id ne $nullid2} {
         set menu $rowctxmenu
         if {$mainhead ne {}} {
-            $menu entryconfigure 8 -label [mc "Reset %s branch to here" $mainhead] -state normal
+            $menu entryconfigure 9 -label [mc "Reset %s branch to here" $mainhead] -state normal
         } else {
-            $menu entryconfigure 8 -label [mc "Detached head: can't reset" $mainhead] -state disabled
+            $menu entryconfigure 9 -label [mc "Detached head: can't reset" $mainhead] -state disabled
         }
-        $menu entryconfigure 10 -state $mstate
         $menu entryconfigure 11 -state $mstate
         $menu entryconfigure 12 -state $mstate
+        $menu entryconfigure 13 -state $mstate
     } else {
         set menu $fakerowmenu
     }
@@ -9881,7 +9882,7 @@ proc exec_citool {tool_args {baseid {}}} {
     array set env $save_env
 }
 
-proc cherrypick {} {
+proc cherrypick {{option "-r"}} {
     global rowmenuid curview
     global mainhead mainheadid
     global gitdir
@@ -9898,7 +9899,7 @@ proc cherrypick {} {
     update
     # Unfortunately git-cherry-pick writes stuff to stderr even when
     # no error occurs, and exec takes that as an indication of error...
-    if {[catch {safe_exec [list sh -c "git cherry-pick -r $rowmenuid 2>&1"]} err]} {
+    if {[catch {safe_exec [list sh -c "git cherry-pick $option $rowmenuid 2>&1"]} err]} {
         notbusy cherrypick
         if {[regexp -line \
                  {Entry '(.*)' (would be overwritten by merge|not uptodate)} \
